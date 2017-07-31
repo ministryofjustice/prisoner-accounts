@@ -93,7 +93,7 @@ public class PrisonerAccountsServiceTest {
     }
 
     @Test
-    public void cannotDebitUnknownAccount() {
+    public void cannotDebitUnknownAccount() throws DebitNotSupportedException, InsufficientFundsException {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
 
@@ -105,38 +105,36 @@ public class PrisonerAccountsServiceTest {
     }
 
     @Test
-    public void canDebitCurrentAccountWithFunds() {
+    public void canDebitCurrentAccountWithFunds() throws DebitNotSupportedException, InsufficientFundsException {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
         Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
         transactionService.creditAccount(newAccount, 1000l, "Gift");
-        Optional<Transaction> transaction = transactionService.debitAccount(newAccount, 100l, "R186 Signal Box");
+        Optional<Transaction> transaction = transactionService.debitAccount(establishmentId, prisonerId, accountName, 100l, "R186 Signal Box");
 
         assertThat(transaction.isPresent()).isTrue();
     }
 
-    @Test
-    public void cannotDebitCurrentAccountWithInsufficientFunds() {
+    @Test(expected = InsufficientFundsException.class)
+    public void cannotDebitCurrentAccountWithInsufficientFunds() throws DebitNotSupportedException, InsufficientFundsException {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
 
-        Optional<Transaction> transaction = transactionService.debitAccount(newAccount, 100l, "R186 Signal Box");
+        transactionService.debitAccount(establishmentId, prisonerId, accountName, 100l, "R186 Signal Box");
 
-        assertThat(transaction.isPresent()).isFalse();
     }
 
-    @Test
-    public void cannotDebitSavingsAccount() {
+    @Test(expected = DebitNotSupportedException.class)
+    public void cannotDebitSavingsAccount() throws DebitNotSupportedException, InsufficientFundsException {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
         Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
         transactionService.creditAccount(newAccount, 1000l, "Gift");
-        Optional<Transaction> transaction = transactionService.debitAccount(newAccount, 100l, "R186 Signal Box");
-        assertThat(transaction.isPresent()).isFalse();
+        transactionService.debitAccount(establishmentId, prisonerId, accountName, 100l, "R186 Signal Box");
     }
 
     @Test

@@ -36,21 +36,38 @@ public class TransactionService {
     }
 
 
-    public Optional<Transaction> debitAccount(Account account, Long amountPence, String description) {
-        return Optional.ofNullable(account)
-                .filter(acc -> acc.getAccountType() != Account.AccountTypes.SAVINGS)
-                .filter(acc -> accountService.balanceOf(acc) >= amountPence)
-                .map(acc -> transactionRepository.save(Transaction.builder()
-                        .account(account)
-                        .amountPence(amountPence)
-                        .description(description)
-                        .transactionType(Transaction.TransactionTypes.DEBIT)
-                        .build()));
+    public Transaction debitAccount(Account account, Long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException {
+
+        checkNotSavingsAccount(account);
+        checkSufficientFunds(account, amountPence);
+
+        return transactionRepository.save(Transaction.builder()
+                .account(account)
+                .amountPence(amountPence)
+                .description(description)
+                .transactionType(Transaction.TransactionTypes.DEBIT)
+                .build());
     }
 
-    public Optional<Transaction> debitAccount(String establishmentId, String prisonerId, String accountName, long amountPence, String description) {
-        return accountService.accountFor(establishmentId, prisonerId, accountName)
-                .map(acc -> debitAccount(acc, amountPence, description))
-                .orElse(Optional.empty());
+    private void checkSufficientFunds(Account acc, Long amountPence) throws InsufficientFundsException {
+        if (accountService.balanceOf(acc) < amountPence) {
+            throw new InsufficientFundsException("Insufficient funds.");
+        }
+    }
+
+    private void checkNotSavingsAccount(Account acc) throws DebitNotSupportedException {
+        if (acc.getAccountType() == Account.AccountTypes.SAVINGS) {
+            throw new DebitNotSupportedException("Cannot debit a savings account.");
+        }
+    }
+
+    public Optional<Transaction> debitAccount(String establishmentId, String prisonerId, String accountName, long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException {
+        Optional<Account> account = accountService.accountFor(establishmentId, prisonerId, accountName);
+
+        if (account.isPresent()) {
+            return Optional.of(debitAccount(account.get(), amountPence, description));
+        } else {
+            return Optional.empty();
+        }
     }
 }
