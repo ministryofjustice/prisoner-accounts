@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -38,6 +37,8 @@ public class Transaction {
     @NotNull
     private Long amountPence;
     @NotNull
-    @Builder.Default private ZonedDateTime transactionDateTime = ZonedDateTime.now(ZoneOffset.UTC);
+    @Builder.Default
+    private ZonedDateTime transactionDateTime = ZonedDateTime.now(ZoneOffset.UTC);
+
     public enum TransactionTypes {CREDIT, DEBIT}
 }

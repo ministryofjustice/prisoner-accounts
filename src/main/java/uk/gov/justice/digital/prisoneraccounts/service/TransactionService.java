@@ -6,7 +6,6 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionRepository;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
