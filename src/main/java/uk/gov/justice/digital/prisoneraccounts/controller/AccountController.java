@@ -102,4 +102,8 @@ public class AccountController {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(InsufficientFundsException.class)
+    public ResponseEntity<String> insufficientFunds(InsufficientFundsException e) {
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }

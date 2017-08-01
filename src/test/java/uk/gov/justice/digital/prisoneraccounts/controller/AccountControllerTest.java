@@ -252,8 +252,42 @@ public class AccountControllerTest {
                 then()
                 .statusCode(400)
                 .body(equalTo("Cannot debit a savings account."));
-
-
     }
+
+    @Test
+    public void cannotDebitAccountWithInsufficientFunds() {
+        String establishmentId = UUID.randomUUID().toString();
+        String prisonerId = UUID.randomUUID().toString();
+
+        LedgerEntry ledgerEntry = LedgerEntry.builder()
+                .amountPence(1)
+                .clientRef(UUID.randomUUID().toString())
+                .description("Gift")
+                .operation(Operations.CREDIT)
+                .build();
+
+        given()
+                .body(ledgerEntry).
+                when()
+                .contentType("application/json")
+                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                then()
+                .statusCode(200);
+
+        given()
+                .body(LedgerEntry.builder()
+                        .clientRef(UUID.randomUUID().toString())
+                        .description("Mojo")
+                        .operation(Operations.DEBIT)
+                        .amountPence(10)
+                        .build()).
+                when()
+                .contentType("application/json")
+                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                then()
+                .statusCode(400)
+                .body(equalTo("Insufficient funds."));
+    }
+
 
 }
