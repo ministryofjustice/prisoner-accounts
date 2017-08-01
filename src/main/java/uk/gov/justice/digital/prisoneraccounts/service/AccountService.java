@@ -2,6 +2,7 @@ package uk.gov.justice.digital.prisoneraccounts.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.AccountRepository;
@@ -23,13 +24,17 @@ public class AccountService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Account newAccount(String establishmentId, String prisonerId, String accName, Account.AccountTypes accountType) {
-        return accountRepository.save(Account.builder()
-                .establishmentId(establishmentId)
-                .prisonerId(prisonerId)
-                .accountName(accName)
-                .accountType(accountType)
-                .build());
+    public Account getOrCreateAccount(String establishmentId, String prisonerId, String accName, Account.AccountTypes accountType) {
+
+        Optional<Account> maybeExistingAccount = accountRepository.findByEstablishmentIdAndPrisonerIdAndAccountNameAndAccountStatus(establishmentId, prisonerId, accName, Account.AccountStatuses.OPEN);
+
+        return maybeExistingAccount.orElseGet(() ->
+                accountRepository.save(Account.builder()
+                        .establishmentId(establishmentId)
+                        .prisonerId(prisonerId)
+                        .accountName(accName)
+                        .accountType(accountType)
+                        .build()));
     }
 
     public Optional<Account> accountFor(String establishmentId, String prisonerId, String accName) {
@@ -37,12 +42,12 @@ public class AccountService {
                 establishmentId, prisonerId, accName, Account.AccountStatuses.OPEN);
     }
 
-    public Optional<Long> balanceOf(String establishmentId, String prisonerId, String accName) {
+    public Optional<Balance> balanceOf(String establishmentId, String prisonerId, String accName) {
         return accountFor(establishmentId, prisonerId, accName)
                 .map(acc -> balanceOf(acc));
     }
 
-    public long balanceOf(Account account) {
+    public Balance balanceOf(Account account) {
         List<Transaction> transactions = transactionRepository.findAllByAccount(account);
 
         long sumCredits = transactions.stream()
@@ -55,7 +60,10 @@ public class AccountService {
                 .mapToLong(Transaction::getAmountPence)
                 .sum();
 
-        return sumCredits - sumDebits;
+        return Balance.builder()
+                .accountName(account.getAccountName())
+                .amountPence(sumCredits - sumDebits)
+                .build();
     }
 
 

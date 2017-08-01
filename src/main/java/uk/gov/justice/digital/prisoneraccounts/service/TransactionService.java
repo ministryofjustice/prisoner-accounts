@@ -6,8 +6,6 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionRepository;
 
-import java.util.Optional;
-
 @Service
 public class TransactionService {
 
@@ -20,23 +18,24 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction creditAccount(Account account, Long amountPence, String description) {
+    public Transaction creditAccount(Account account, Long amountPence, String clientRef, String description) {
         return transactionRepository.save(Transaction.builder()
                 .account(account)
                 .amountPence(amountPence)
                 .description(description)
+                .clientReference(clientRef)
                 .transactionType(Transaction.TransactionTypes.CREDIT)
                 .build());
     }
 
-    public Optional<Transaction> creditAccount(String establishmentId, String prisonerId, String accName, Long amountPence, String description) {
-        return accountService.accountFor(establishmentId, prisonerId, accName)
-                .map(account -> creditAccount(account, amountPence, description));
+//    public Optional<Transaction> creditAccount(String establishmentId, String prisonerId, String accName, Long amountPence, String description) {
+//        return accountService.accountFor(establishmentId, prisonerId, accName)
+//                .map(account -> creditAccount(account, amountPence, description, description));
+//
+//    }
 
-    }
 
-
-    public Transaction debitAccount(Account account, Long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException {
+    public Transaction debitAccount(Account account, Long amountPence, String clientRef, String description) throws DebitNotSupportedException, InsufficientFundsException {
 
         checkNotSavingsAccount(account);
         checkSufficientFunds(account, amountPence);
@@ -45,12 +44,13 @@ public class TransactionService {
                 .account(account)
                 .amountPence(amountPence)
                 .description(description)
+                .clientReference(clientRef)
                 .transactionType(Transaction.TransactionTypes.DEBIT)
                 .build());
     }
 
     private void checkSufficientFunds(Account acc, Long amountPence) throws InsufficientFundsException {
-        if (accountService.balanceOf(acc) < amountPence) {
+        if (accountService.balanceOf(acc).getAmountPence() < amountPence) {
             throw new InsufficientFundsException("Insufficient funds.");
         }
     }
@@ -61,13 +61,13 @@ public class TransactionService {
         }
     }
 
-    public Optional<Transaction> debitAccount(String establishmentId, String prisonerId, String accountName, long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException {
-        Optional<Account> account = accountService.accountFor(establishmentId, prisonerId, accountName);
-
-        if (account.isPresent()) {
-            return Optional.of(debitAccount(account.get(), amountPence, description));
-        } else {
-            return Optional.empty();
-        }
-    }
+//    public Optional<Transaction> debitAccount(String establishmentId, String prisonerId, String accountName, long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException {
+//        Optional<Account> account = accountService.accountFor(establishmentId, prisonerId, accountName);
+//
+//        if (account.isPresent()) {
+//            return Optional.of(debitAccount(account.get(), amountPence, description));
+//        } else {
+//            return Optional.empty();
+//        }
+//    }
 }

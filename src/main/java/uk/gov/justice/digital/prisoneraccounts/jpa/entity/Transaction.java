@@ -31,6 +31,7 @@ public class Transaction {
     @NotNull
     private Account account;
     private String description;
+    private String clientReference;
     @Enumerated(EnumType.STRING)
     @NotNull
     private TransactionTypes transactionType;

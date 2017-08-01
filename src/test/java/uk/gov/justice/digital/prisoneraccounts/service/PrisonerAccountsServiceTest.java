@@ -10,7 +10,6 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.AccountRepository;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionRepository;
 
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,7 +38,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
 
         Account resolvedAccount = accountRepository.findOne(newAccount.getAccountId());
 
@@ -47,30 +46,18 @@ public class PrisonerAccountsServiceTest {
     }
 
     @Test
-    public void cannotCreditUnknownAccount() {
-        Optional<Transaction> transaction = transactionService.creditAccount(
-                UUID.randomUUID().toString(),
-                UUID.randomUUID().toString(),
-                "qwert",
-                123l,
-                "desc");
-
-        assertThat(transaction.isPresent()).isFalse();
-    }
-
-    @Test
-    public void canCreditExistingCurrentAccount() {
+    public void canCreditCurrentAccount() {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
 
         String accountName = "my_account";
 
-        accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
 
-        Optional<Transaction> transaction = transactionService.creditAccount(establishmentId, prisonerId, accountName, 123l, "R186 Signal Box");
+        Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
 
-        assertThat(transaction.isPresent()).isTrue();
-        Transaction actual = transactionRepository.findOne(transaction.get().getTransactionId());
+        assertThat(transaction).isNotNull();
+        Transaction actual = transactionRepository.findOne(transaction.getTransactionId());
         assertThat(actual).isNotNull();
         assertThat(actual.getAmountPence()).isEqualTo(123l);
     }
@@ -82,26 +69,14 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
 
-        Optional<Transaction> transaction = transactionService.creditAccount(establishmentId, prisonerId, accountName, 123l, "R186 Signal Box");
+        Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
 
-        assertThat(transaction.isPresent()).isTrue();
-        Transaction actual = transactionRepository.findOne(transaction.get().getTransactionId());
+        assertThat(transaction).isNotNull();
+        Transaction actual = transactionRepository.findOne(transaction.getTransactionId());
         assertThat(actual).isNotNull();
         assertThat(actual.getAmountPence()).isEqualTo(123l);
-    }
-
-    @Test
-    public void cannotDebitUnknownAccount() throws DebitNotSupportedException, InsufficientFundsException {
-        String establishmentId = UUID.randomUUID().toString();
-        String prisonerId = UUID.randomUUID().toString();
-
-        String accountName = "my_account";
-
-        Optional<Transaction> transaction = transactionService.debitAccount(establishmentId, prisonerId, accountName, 123l, "R186 Signal Box");
-
-        assertThat(transaction.isPresent()).isFalse();
     }
 
     @Test
@@ -109,11 +84,11 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
-        transactionService.creditAccount(newAccount, 1000l, "Gift");
-        Optional<Transaction> transaction = transactionService.debitAccount(establishmentId, prisonerId, accountName, 100l, "R186 Signal Box");
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
+        Transaction transaction = transactionService.debitAccount(newAccount, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
 
-        assertThat(transaction.isPresent()).isTrue();
+        assertThat(transaction).isNotNull();
     }
 
     @Test(expected = InsufficientFundsException.class)
@@ -121,10 +96,9 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
 
-        transactionService.debitAccount(establishmentId, prisonerId, accountName, 100l, "R186 Signal Box");
-
+        transactionService.debitAccount(account, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
     }
 
     @Test(expected = DebitNotSupportedException.class)
@@ -132,9 +106,9 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
-        transactionService.creditAccount(newAccount, 1000l, "Gift");
-        transactionService.debitAccount(establishmentId, prisonerId, accountName, 100l, "R186 Signal Box");
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
+        transactionService.debitAccount(newAccount, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
     }
 
     @Test
@@ -142,8 +116,8 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.newAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
-        assertThat(accountService.balanceOf(newAccount)).isEqualTo(0l);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        assertThat(accountService.balanceOf(newAccount).getAmountPence()).isEqualTo(0l);
     }
 
     @Test
@@ -152,6 +126,17 @@ public class PrisonerAccountsServiceTest {
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
         assertThat(accountService.balanceOf(establishmentId, prisonerId, accountName).isPresent()).isFalse();
+    }
+
+    @Test
+    public void cannotCreateDuplicateAccount() {
+        String establishmentId = UUID.randomUUID().toString();
+        String prisonerId = UUID.randomUUID().toString();
+        String accountName = "my_account";
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        Account duplicateAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+
+        assertThat(duplicateAccount.getAccountId()).isEqualTo(newAccount.getAccountId());
     }
 
 }
