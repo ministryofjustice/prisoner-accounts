@@ -21,6 +21,7 @@ import uk.gov.justice.digital.prisoneraccounts.service.LedgerService;
 import java.util.Optional;
 
 @RestController
+@RequestMapping("/prisoneraccounts")
 public class AccountController {
 
     private final LedgerService ledgerService;

@@ -26,6 +26,7 @@ public class AccountControllerTest {
     @Before
     public void setup() {
         RestAssured.port = port;
+        RestAssured.basePath = "/prisoneraccounts";
     }
 
     @Test
