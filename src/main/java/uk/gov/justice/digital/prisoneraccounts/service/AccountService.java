@@ -67,4 +67,7 @@ public class AccountService {
     }
 
 
+    public List<Account> prisonerOpenAccounts(String establishmentId, String prisonerId) {
+        return accountRepository.findByEstablishmentIdAndPrisonerIdAndAccountStatus(establishmentId, prisonerId, Account.AccountStatuses.OPEN);
+    }
 }

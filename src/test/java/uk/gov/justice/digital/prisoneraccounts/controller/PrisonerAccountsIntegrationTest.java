@@ -7,6 +7,7 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.context.embedded.LocalServerPort;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.api.LedgerEntry;
 import uk.gov.justice.digital.prisoneraccounts.api.Operations;
 import uk.gov.justice.digital.prisoneraccounts.api.TransactionDetail;
@@ -391,6 +392,46 @@ public class PrisonerAccountsIntegrationTest {
         assertThat(allTransactionsInRange).containsOnly(tx2, tx3);
 
 
+    }
+
+    @Test
+    public void canQueryPrisonerAccountsSummary() throws InterruptedException {
+        String establishmentId = UUID.randomUUID().toString();
+        String prisonerId = UUID.randomUUID().toString();
+
+        given()
+                .body(newLedgerEntry()).
+                when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                then()
+                .statusCode(200);
+
+        given()
+                .body(newLedgerEntry()).
+                when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
+                then()
+                .statusCode(200);
+
+        given()
+                .body(newLedgerEntry()).
+                when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
+                then()
+                .statusCode(200);
+
+        Balance[] summary = given()
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/summary", establishmentId, prisonerId)
+                .then()
+                .statusCode(200)
+                .extract()
+                .body()
+                .as(Balance[].class);
+
+        assertThat(summary).extracting("accountName").containsExactlyInAnyOrder("cash", "spend", "savings");
     }
 
 }

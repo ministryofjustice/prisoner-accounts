@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.OK;
+
 @RestController
 @RequestMapping("/prisoneraccounts")
 public class AccountController {
@@ -121,11 +124,11 @@ public class AccountController {
 
         return maybeBalance
                 .map(balance -> new ResponseEntity<>(balance, HttpStatus.OK))
-                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+                .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 
     @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/{accName}/transactions", method = RequestMethod.GET)
-    public ResponseEntity<List<TransactionDetail>> getTransactions(
+    public ResponseEntity<List<TransactionDetail>> getPrisonerTransactions(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId,
             @PathVariable("accName") String accName,
@@ -156,8 +159,30 @@ public class AccountController {
 
     }
 
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/summary", method = RequestMethod.GET)
+    public ResponseEntity<List<Balance>> getPrisonerAccountsSummary(
+            @PathVariable("establishmentId") String establishmentId,
+            @PathVariable("prisonerId") String prisonerId) {
+
+        List<Balance> balanceList = accountService.prisonerOpenAccounts(establishmentId, prisonerId)
+                .stream()
+                .map(acc -> accountService.balanceOf(acc))
+                .collect(Collectors.toList());
+
+        return accountSummaryFor(balanceList);
+
+    }
+
+    private ResponseEntity<List<Balance>> accountSummaryFor(List<Balance> balanceList) {
+        if (balanceList.isEmpty()) {
+            return new ResponseEntity(NOT_FOUND);
+        } else {
+            return new ResponseEntity<>(balanceList, OK);
+        }
+    }
+
     private ResponseEntity<List<TransactionDetail>> notFound() {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(NOT_FOUND);
     }
 
 
