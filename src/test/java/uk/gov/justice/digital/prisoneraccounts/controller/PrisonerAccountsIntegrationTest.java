@@ -9,16 +9,18 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import uk.gov.justice.digital.prisoneraccounts.api.LedgerEntry;
 import uk.gov.justice.digital.prisoneraccounts.api.Operations;
+import uk.gov.justice.digital.prisoneraccounts.api.TransactionDetail;
 
 import java.util.UUID;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.RestAssured.when;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @RunWith(SpringJUnit4ClassRunner.class)
-public class AccountControllerTest {
+public class PrisonerAccountsIntegrationTest {
 
     @LocalServerPort
     int port;
@@ -45,7 +47,7 @@ public class AccountControllerTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -53,12 +55,12 @@ public class AccountControllerTest {
                 .body(ledgerEntry.toBuilder().clientRef(UUID.randomUUID().toString()).description("wages 2").build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishment/{establishmentId}/prisoner/{prisonerId}/spend/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/spend/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(164));
@@ -81,7 +83,7 @@ public class AccountControllerTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -89,12 +91,12 @@ public class AccountControllerTest {
                 .body(ledgerEntry.toBuilder().clientRef(UUID.randomUUID().toString()).description("Gift 2").build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishment/{establishmentId}/prisoner/{prisonerId}/cash/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(2000));
@@ -117,7 +119,7 @@ public class AccountControllerTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -125,12 +127,12 @@ public class AccountControllerTest {
                 .body(ledgerEntry.toBuilder().clientRef(UUID.randomUUID().toString()).description("another rainy day").build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishment/{establishmentId}/prisoner/{prisonerId}/savings/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/savings/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(2000));
@@ -153,7 +155,7 @@ public class AccountControllerTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -166,12 +168,12 @@ public class AccountControllerTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishment/{establishmentId}/prisoner/{prisonerId}/cash/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(999));
@@ -194,7 +196,7 @@ public class AccountControllerTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -207,12 +209,12 @@ public class AccountControllerTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishment/{establishmentId}/prisoner/{prisonerId}/spend/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/spend/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(999));
@@ -235,7 +237,7 @@ public class AccountControllerTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -248,7 +250,7 @@ public class AccountControllerTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(400)
                 .body(equalTo("Cannot debit a savings account."));
@@ -259,18 +261,13 @@ public class AccountControllerTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
 
-        LedgerEntry ledgerEntry = LedgerEntry.builder()
-                .amountPence(1)
-                .clientRef(UUID.randomUUID().toString())
-                .description("Gift")
-                .operation(Operations.CREDIT)
-                .build();
+        LedgerEntry ledgerEntry = newLedgerEntry();
 
         given()
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -283,11 +280,117 @@ public class AccountControllerTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishment/{establishmentId}/prisoner/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(400)
                 .body(equalTo("Insufficient funds."));
     }
 
+    private LedgerEntry newLedgerEntry() {
+        return LedgerEntry.builder()
+                .amountPence(1)
+                .clientRef(UUID.randomUUID().toString())
+                .description("Gift")
+                .operation(Operations.CREDIT)
+                .build();
+    }
+
+    @Test
+    public void canQueryTransactionsWithAndWithoutDateRanges() throws InterruptedException {
+        String establishmentId = UUID.randomUUID().toString();
+        String prisonerId = UUID.randomUUID().toString();
+
+        TransactionDetail tx1 = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail.class);
+
+        Thread.sleep(1000);
+
+        TransactionDetail tx2 = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail.class);
+
+        Thread.sleep(1000);
+
+        TransactionDetail tx3 = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail.class);
+
+        Thread.sleep(1000);
+
+        TransactionDetail tx4 = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail.class);
+
+        TransactionDetail[] allTransactions = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail[].class);
+
+        assertThat(allTransactions).containsOnly(tx1, tx2, tx3, tx4);
+
+        TransactionDetail[] allTransactionsSince = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .queryParam("fromDateTime", tx2.getTransactionDateTime().toString())
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail[].class);
+
+        assertThat(allTransactionsSince).containsOnly(tx2, tx3, tx4);
+
+        TransactionDetail[] allTransactionsTo = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .queryParam("toDateTime", tx3.getTransactionDateTime().toString())
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail[].class);
+
+        assertThat(allTransactionsTo).containsOnly(tx1, tx2, tx3);
+
+        TransactionDetail[] allTransactionsInRange = given()
+                .body(newLedgerEntry()).
+                        when()
+                .contentType("application/json")
+                .queryParam("fromDateTime", tx2.getTransactionDateTime().toString())
+                .queryParam("toDateTime", tx3.getTransactionDateTime().toString())
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                        then()
+                .statusCode(200)
+                .extract().body().as(TransactionDetail[].class);
+
+        assertThat(allTransactionsInRange).containsOnly(tx2, tx3);
+
+
+    }
 
 }

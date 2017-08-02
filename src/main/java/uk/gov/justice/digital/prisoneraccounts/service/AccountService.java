@@ -48,7 +48,7 @@ public class AccountService {
     }
 
     public Balance balanceOf(Account account) {
-        List<Transaction> transactions = transactionRepository.findAllByAccount(account);
+        List<Transaction> transactions = transactionRepository.findAllByAccountOrderByTransactionDateTimeAsc(account);
 
         long sumCredits = transactions.stream()
                 .filter(transaction -> transaction.getTransactionType() == Transaction.TransactionTypes.CREDIT)

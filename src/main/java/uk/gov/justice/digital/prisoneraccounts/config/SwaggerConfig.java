@@ -1,4 +1,4 @@
-package uk.gov.justice.digital.prisoneraccounts.controller;
+package uk.gov.justice.digital.prisoneraccounts.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -6,6 +6,10 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
+
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.util.Optional;
 
 import static springfox.documentation.builders.PathSelectors.regex;
 
@@ -15,10 +19,17 @@ public class SwaggerConfig {
 
     @Bean
     public Docket prisonerAccountsApi() {
-        return new Docket(DocumentationType.SWAGGER_2)
+        Docket docket = new Docket(DocumentationType.SWAGGER_2)
+                .useDefaultResponseMessages(false)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("uk.gov.justice.digital.prisoneraccounts.controller"))
                 .paths(regex("/prisoneraccounts.*"))
                 .build();
+
+        docket.genericModelSubstitutes(Optional.class);
+        docket.directModelSubstitute(ZonedDateTime.class, java.util.Date.class);
+        docket.directModelSubstitute(LocalDateTime.class, java.util.Date.class);
+
+        return docket;
     }
 }

@@ -6,6 +6,10 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionRepository;
 
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public class TransactionService {
 
@@ -58,6 +62,19 @@ public class TransactionService {
     private void checkNotSavingsAccount(Account acc) throws DebitNotSupportedException {
         if (acc.getAccountType() == Account.AccountTypes.SAVINGS) {
             throw new DebitNotSupportedException("Cannot debit a savings account.");
+        }
+    }
+
+    public List<Transaction> getTransactions(Account account, Optional<ZonedDateTime> from, Optional<ZonedDateTime> to) {
+
+        if (from.isPresent() && to.isPresent()) {
+            return transactionRepository.findAllByAccountAndTransactionDateTimeBetweenOrderByTransactionDateTimeAsc(account, from, to);
+        } else if (from.isPresent() && !to.isPresent()) {
+            return transactionRepository.findAllByAccountAndTransactionDateTimeGreaterThanEqualOrderByTransactionDateTimeAsc(account, from);
+        } else if (!from.isPresent() && to.isPresent()) {
+            return transactionRepository.findAllByAccountAndTransactionDateTimeLessThanEqualOrderByTransactionDateTimeAsc(account, to);
+        } else {
+            return transactionRepository.findAllByAccountOrderByTransactionDateTimeAsc(account);
         }
     }
 
