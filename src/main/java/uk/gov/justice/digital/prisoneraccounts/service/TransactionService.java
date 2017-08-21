@@ -32,12 +32,6 @@ public class TransactionService {
                 .build());
     }
 
-//    public Optional<Transaction> creditAccount(String establishmentId, String prisonerId, String accName, Long amountPence, String description) {
-//        return accountService.accountFor(establishmentId, prisonerId, accName)
-//                .map(account -> creditAccount(account, amountPence, description, description));
-//
-//    }
-
 
     public Transaction debitAccount(Account account, Long amountPence, String clientRef, String description) throws DebitNotSupportedException, InsufficientFundsException {
 
@@ -77,14 +71,4 @@ public class TransactionService {
             return transactionRepository.findAllByAccountOrderByTransactionDateTimeAsc(account);
         }
     }
-
-//    public Optional<Transaction> debitAccount(String establishmentId, String prisonerId, String accountName, long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException {
-//        Optional<Account> account = accountService.accountFor(establishmentId, prisonerId, accountName);
-//
-//        if (account.isPresent()) {
-//            return Optional.of(debitAccount(account.get(), amountPence, description));
-//        } else {
-//            return Optional.empty();
-//        }
-//    }
 }

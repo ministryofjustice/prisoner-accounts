@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.prisoneraccounts.service;
 
+import lombok.val;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import uk.gov.justice.digital.prisoneraccounts.api.Operations;
@@ -19,7 +20,8 @@ public class LedgerService {
     }
 
     public Transaction postTransaction(String establishmentId, String prisonerId, String accountName, String description, String clientRef, long amountPence, Account.AccountTypes accountType, Operations operation) throws DebitNotSupportedException, InsufficientFundsException {
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, accountType);
+
+        val account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, accountType);
 
         Transaction result = null;
         switch (operation) {
