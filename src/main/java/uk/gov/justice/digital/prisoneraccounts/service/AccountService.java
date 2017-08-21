@@ -2,6 +2,7 @@ package uk.gov.justice.digital.prisoneraccounts.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
@@ -24,7 +25,7 @@ public class AccountService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Account getOrCreateAccount(String establishmentId, String prisonerId, String accName, Account.AccountTypes accountType) {
+    public Account getOrCreateAccount(String establishmentId, String prisonerId, String accName) {
 
         Optional<Account> maybeExistingAccount = accountRepository.findByEstablishmentIdAndPrisonerIdAndAccountNameAndAccountStatus(establishmentId, prisonerId, accName, Account.AccountStatuses.OPEN);
 
@@ -33,8 +34,12 @@ public class AccountService {
                         .establishmentId(establishmentId)
                         .prisonerId(prisonerId)
                         .accountName(accName)
-                        .accountType(accountType)
+                        .accountType(accountTypeOf(accName))
                         .build()));
+    }
+
+    private Account.AccountTypes accountTypeOf(String accountName) {
+        return accountName.equals("savings")? Account.AccountTypes.SAVINGS: Account.AccountTypes.FULL_ACCESS;
     }
 
     public Optional<Account> accountFor(String establishmentId, String prisonerId, String accName) {
@@ -70,4 +75,6 @@ public class AccountService {
     public List<Account> prisonerOpenAccounts(String establishmentId, String prisonerId) {
         return accountRepository.findByEstablishmentIdAndPrisonerIdAndAccountStatus(establishmentId, prisonerId, Account.AccountStatuses.OPEN);
     }
+
+
 }

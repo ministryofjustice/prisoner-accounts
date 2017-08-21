@@ -11,6 +11,7 @@ import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.api.LedgerEntry;
 import uk.gov.justice.digital.prisoneraccounts.api.Operations;
 import uk.gov.justice.digital.prisoneraccounts.api.TransactionDetail;
+import uk.gov.justice.digital.prisoneraccounts.api.TransferRequest;
 
 import java.util.UUID;
 
@@ -434,4 +435,36 @@ public class PrisonerAccountsIntegrationTest {
         assertThat(summary).extracting("accountName").containsExactlyInAnyOrder("cash", "spend", "savings");
     }
 
+    @Test
+    public void canTransferFundsBetweenPrisonerAccounts() {
+        String establishmentId = UUID.randomUUID().toString();
+        String prisonerId = UUID.randomUUID().toString();
+
+        LedgerEntry ledgerEntry = LedgerEntry.builder()
+                .amountPence(1000)
+                .clientRef(UUID.randomUUID().toString())
+                .description("Gift")
+                .operation(Operations.CREDIT)
+                .build();
+
+        given()
+                .body(ledgerEntry).
+                when()
+                .contentType("application/json")
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                then()
+                .statusCode(200);
+
+        given()
+                .body(TransferRequest.builder()
+                        .fromAccountName("cash")
+                        .toAccountName("savings")
+                        .amountPence(100l)
+                        .build())
+                .contentType("application/json").
+                when()
+                .post("/establishments/{establishmentId}/prisoners/{prisonerId}/transfer", establishmentId, prisonerId)
+                .then()
+                .statusCode(200);
+    }
 }

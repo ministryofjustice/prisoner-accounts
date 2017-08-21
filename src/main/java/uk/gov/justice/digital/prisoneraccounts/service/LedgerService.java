@@ -19,9 +19,9 @@ public class LedgerService {
         this.transactionService = transactionService;
     }
 
-    public Transaction postTransaction(String establishmentId, String prisonerId, String accountName, String description, String clientRef, long amountPence, Account.AccountTypes accountType, Operations operation) throws DebitNotSupportedException, InsufficientFundsException {
+    public Transaction postTransaction(String establishmentId, String prisonerId, String accountName, String description, String clientRef, long amountPence, Operations operation) throws DebitNotSupportedException, InsufficientFundsException {
 
-        val account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, accountType);
+        val account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
 
         Transaction result = null;
         switch (operation) {

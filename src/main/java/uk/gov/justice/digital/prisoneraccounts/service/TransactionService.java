@@ -2,6 +2,7 @@ package uk.gov.justice.digital.prisoneraccounts.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionRepository;
@@ -9,6 +10,7 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionReposit
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class TransactionService {
@@ -70,5 +72,13 @@ public class TransactionService {
         } else {
             return transactionRepository.findAllByAccountOrderByTransactionDateTimeAsc(account);
         }
+    }
+
+    @Transactional
+    public void transferFunds(Account sourceAccount, Account targetAccount, long amountPence) throws DebitNotSupportedException, InsufficientFundsException {
+        String clientRef = UUID.randomUUID().toString();
+        String description = "transfer";
+        debitAccount(sourceAccount, amountPence, clientRef, description);
+        creditAccount(targetAccount, amountPence, clientRef, description);
     }
 }

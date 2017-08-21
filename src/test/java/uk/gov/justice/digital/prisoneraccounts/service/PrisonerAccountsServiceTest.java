@@ -38,7 +38,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
 
         Account resolvedAccount = accountRepository.findOne(newAccount.getAccountId());
 
@@ -52,7 +52,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
 
         Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
 
@@ -69,7 +69,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
 
         Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
 
@@ -84,7 +84,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
         transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
         Transaction transaction = transactionService.debitAccount(newAccount, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
 
@@ -96,7 +96,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.FULL_ACCESS);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
 
         transactionService.debitAccount(account, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
     }
@@ -105,8 +105,8 @@ public class PrisonerAccountsServiceTest {
     public void cannotDebitSavingsAccount() throws DebitNotSupportedException, InsufficientFundsException {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
-        String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        String accountName = "savings";
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
         transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
         transactionService.debitAccount(newAccount, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
     }
@@ -116,7 +116,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
         assertThat(accountService.balanceOf(newAccount).getAmountPence()).isEqualTo(0l);
     }
 
@@ -133,10 +133,26 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
-        Account duplicateAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Account.AccountTypes.SAVINGS);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account duplicateAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
 
         assertThat(duplicateAccount.getAccountId()).isEqualTo(newAccount.getAccountId());
+    }
+
+    @Test
+    public void canTransferFundsBetweenPrisonerAccounts() throws DebitNotSupportedException, InsufficientFundsException {
+        String establishmentId = UUID.randomUUID().toString();
+        String prisonerId = UUID.randomUUID().toString();
+
+        Account sourceAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, "cash");
+        Account targetAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, "savings");
+
+        Transaction transaction = transactionService.creditAccount(sourceAccount, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
+        transactionService.transferFunds(sourceAccount,targetAccount,100l);
+
+        assertThat(accountService.balanceOf(sourceAccount).getAmountPence()).isEqualTo(23l);
+        assertThat(accountService.balanceOf(targetAccount).getAmountPence()).isEqualTo(100);
+
     }
 
 }

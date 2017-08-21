@@ -15,12 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.api.LedgerEntry;
 import uk.gov.justice.digital.prisoneraccounts.api.TransactionDetail;
+import uk.gov.justice.digital.prisoneraccounts.api.TransferRequest;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.service.AccountService;
 import uk.gov.justice.digital.prisoneraccounts.service.DebitNotSupportedException;
 import uk.gov.justice.digital.prisoneraccounts.service.InsufficientFundsException;
 import uk.gov.justice.digital.prisoneraccounts.service.LedgerService;
+import uk.gov.justice.digital.prisoneraccounts.service.NoSuchAccountException;
 import uk.gov.justice.digital.prisoneraccounts.service.TransactionService;
 
 import java.time.ZonedDateTime;
@@ -46,20 +48,20 @@ public class AccountController {
         this.transactionService = transactionService;
     }
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/cash", method = RequestMethod.PUT)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/{accountName}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<TransactionDetail> ledgerEntryCashAccount(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId,
+            @PathVariable("accountName") String accountName,
             @RequestBody LedgerEntry ledgerEntry) throws DebitNotSupportedException, InsufficientFundsException {
         Transaction transaction = ledgerService.postTransaction(
                 establishmentId,
                 prisonerId,
-                "cash",
+                accountName,
                 ledgerEntry.getDescription(),
                 ledgerEntry.getClientRef(),
                 ledgerEntry.getAmountPence(),
-                Account.AccountTypes.FULL_ACCESS,
                 ledgerEntry.getOperation());
 
         return asResponseEntity(transaction);
@@ -74,44 +76,6 @@ public class AccountController {
                 .transactionId(transaction.getTransactionId())
                 .transactionType(TransactionDetail.TransactionTypes.valueOf(transaction.getTransactionType().toString()))
                 .build(), HttpStatus.OK);
-    }
-
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/spend", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<TransactionDetail> ledgerEntrySpendAccount(
-            @PathVariable("establishmentId") String establishmentId,
-            @PathVariable("prisonerId") String prisonerId,
-            @RequestBody LedgerEntry ledgerEntry) throws DebitNotSupportedException, InsufficientFundsException {
-        Transaction transaction = ledgerService.postTransaction(
-                establishmentId,
-                prisonerId,
-                "spend",
-                ledgerEntry.getDescription(),
-                ledgerEntry.getClientRef(),
-                ledgerEntry.getAmountPence(),
-                Account.AccountTypes.FULL_ACCESS,
-                ledgerEntry.getOperation());
-
-        return asResponseEntity(transaction);
-    }
-
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/savings", method = RequestMethod.PUT)
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<TransactionDetail> ledgerEntrySavingsAccount(
-            @PathVariable("establishmentId") String establishmentId,
-            @PathVariable("prisonerId") String prisonerId,
-            @RequestBody LedgerEntry ledgerEntry) throws DebitNotSupportedException, InsufficientFundsException {
-        Transaction transaction = ledgerService.postTransaction(
-                establishmentId,
-                prisonerId,
-                "savings",
-                ledgerEntry.getDescription(),
-                ledgerEntry.getClientRef(),
-                ledgerEntry.getAmountPence(),
-                Account.AccountTypes.SAVINGS,
-                ledgerEntry.getOperation());
-
-        return asResponseEntity(transaction);
     }
 
     @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/{accName}/balance", method = RequestMethod.GET)
@@ -185,6 +149,20 @@ public class AccountController {
         return new ResponseEntity<>(NOT_FOUND);
     }
 
+
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/transfer", method = RequestMethod.POST)
+    public void transferBetweenPrisonerAccounts(
+            @RequestBody TransferRequest transferRequest,
+            @PathVariable("establishmentId") String establishmentId,
+            @PathVariable("prisonerId") String prisonerId) throws NoSuchAccountException, DebitNotSupportedException, InsufficientFundsException {
+
+        Account sourceAccount = accountService.accountFor(establishmentId,prisonerId,transferRequest.getFromAccountName())
+                .orElseThrow(() -> new NoSuchAccountException("No account found named: " + transferRequest.getFromAccountName()));
+
+        Account targetAccount = accountService.getOrCreateAccount(establishmentId,prisonerId,transferRequest.getToAccountName());
+
+        transactionService.transferFunds(sourceAccount, targetAccount, transferRequest.getAmountPence());
+    }
 
     @ExceptionHandler(DebitNotSupportedException.class)
     public ResponseEntity<String> debitNotSupported(DebitNotSupportedException e) {
