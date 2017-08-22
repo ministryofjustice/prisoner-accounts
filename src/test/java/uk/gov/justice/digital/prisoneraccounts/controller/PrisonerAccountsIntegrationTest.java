@@ -49,7 +49,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -57,12 +57,12 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry.toBuilder().clientRef(UUID.randomUUID().toString()).description("wages 2").build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/spend/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(164));
@@ -85,7 +85,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -93,12 +93,12 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry.toBuilder().clientRef(UUID.randomUUID().toString()).description("Gift 2").build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(2000));
@@ -121,7 +121,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -129,12 +129,12 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry.toBuilder().clientRef(UUID.randomUUID().toString()).description("another rainy day").build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/savings/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/savings/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(2000));
@@ -157,7 +157,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -170,12 +170,12 @@ public class PrisonerAccountsIntegrationTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(999));
@@ -198,7 +198,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -211,12 +211,12 @@ public class PrisonerAccountsIntegrationTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         when()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/spend/balance", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend/balance", establishmentId, prisonerId).
                 then()
                 .statusCode(200)
                 .body("amountPence", equalTo(999));
@@ -239,7 +239,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -252,7 +252,7 @@ public class PrisonerAccountsIntegrationTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(400)
                 .body(equalTo("Cannot debit a savings account."));
@@ -269,7 +269,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -282,7 +282,7 @@ public class PrisonerAccountsIntegrationTest {
                         .build()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(400)
                 .body(equalTo("Insufficient funds."));
@@ -306,7 +306,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                         when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail.class);
@@ -317,7 +317,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                         when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail.class);
@@ -328,7 +328,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                         when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail.class);
@@ -339,7 +339,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                         when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail.class);
@@ -348,7 +348,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                         when()
                 .contentType("application/json")
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash/transactions", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail[].class);
@@ -360,7 +360,7 @@ public class PrisonerAccountsIntegrationTest {
                         when()
                 .contentType("application/json")
                 .queryParam("fromDateTime", tx2.getTransactionDateTime().toString())
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash/transactions", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail[].class);
@@ -372,7 +372,7 @@ public class PrisonerAccountsIntegrationTest {
                         when()
                 .contentType("application/json")
                 .queryParam("toDateTime", tx3.getTransactionDateTime().toString())
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash/transactions", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail[].class);
@@ -385,7 +385,7 @@ public class PrisonerAccountsIntegrationTest {
                 .contentType("application/json")
                 .queryParam("fromDateTime", tx2.getTransactionDateTime().toString())
                 .queryParam("toDateTime", tx3.getTransactionDateTime().toString())
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/cash/transactions", establishmentId, prisonerId).
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash/transactions", establishmentId, prisonerId).
                         then()
                 .statusCode(200)
                 .extract().body().as(TransactionDetail[].class);
@@ -404,7 +404,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -412,7 +412,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/spend", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/spend", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -420,12 +420,12 @@ public class PrisonerAccountsIntegrationTest {
                 .body(newLedgerEntry()).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/savings", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/savings", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
         Balance[] summary = given()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/summary", establishmentId, prisonerId)
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/summary", establishmentId, prisonerId)
                 .then()
                 .statusCode(200)
                 .extract()
@@ -451,7 +451,7 @@ public class PrisonerAccountsIntegrationTest {
                 .body(ledgerEntry).
                 when()
                 .contentType("application/json")
-                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/cash", establishmentId, prisonerId).
+                .put("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/cash", establishmentId, prisonerId).
                 then()
                 .statusCode(200);
 
@@ -463,6 +463,7 @@ public class PrisonerAccountsIntegrationTest {
                         .build())
                 .contentType("application/json").
                 when()
+                .queryParam("toEstablishmentId", UUID.randomUUID().toString())
                 .post("/establishments/{establishmentId}/prisoners/{prisonerId}/transfer", establishmentId, prisonerId)
                 .then()
                 .statusCode(200);

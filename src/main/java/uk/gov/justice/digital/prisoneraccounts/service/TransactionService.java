@@ -24,7 +24,10 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction creditAccount(Account account, Long amountPence, String clientRef, String description) {
+    public Transaction creditAccount(Account account, Long amountPence, String clientRef, String description) throws AccountClosedException {
+
+        checkNotClosed(account);
+
         return transactionRepository.save(Transaction.builder()
                 .account(account)
                 .amountPence(amountPence)
@@ -35,10 +38,9 @@ public class TransactionService {
     }
 
 
-    public Transaction debitAccount(Account account, Long amountPence, String clientRef, String description) throws DebitNotSupportedException, InsufficientFundsException {
-
-        checkNotSavingsAccount(account);
+    public Transaction debitAccount(Account account, Long amountPence, String clientRef, String description) throws DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
         checkSufficientFunds(account, amountPence);
+        checkNotClosed(account);
 
         return transactionRepository.save(Transaction.builder()
                 .account(account)
@@ -49,15 +51,15 @@ public class TransactionService {
                 .build());
     }
 
-    private void checkSufficientFunds(Account acc, Long amountPence) throws InsufficientFundsException {
-        if (accountService.balanceOf(acc).getAmountPence() < amountPence) {
-            throw new InsufficientFundsException("Insufficient funds.");
+    private void checkNotClosed(Account account) throws AccountClosedException {
+        if (account.getAccountStatus() == Account.AccountStatuses.CLOSED) {
+            throw new AccountClosedException("Account " + account.getAccountId() + " is closed. New transactions not permitted." );
         }
     }
 
-    private void checkNotSavingsAccount(Account acc) throws DebitNotSupportedException {
-        if (acc.getAccountType() == Account.AccountTypes.SAVINGS) {
-            throw new DebitNotSupportedException("Cannot debit a savings account.");
+    private void checkSufficientFunds(Account acc, Long amountPence) throws InsufficientFundsException {
+        if (accountService.balanceOf(acc).getAmountPence() < amountPence) {
+            throw new InsufficientFundsException("Insufficient funds.");
         }
     }
 
@@ -75,9 +77,8 @@ public class TransactionService {
     }
 
     @Transactional
-    public void transferFunds(Account sourceAccount, Account targetAccount, long amountPence) throws DebitNotSupportedException, InsufficientFundsException {
+    public void transferFunds(Account sourceAccount, Account targetAccount, long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
         String clientRef = UUID.randomUUID().toString();
-        String description = "transfer";
         debitAccount(sourceAccount, amountPence, clientRef, description);
         creditAccount(targetAccount, amountPence, clientRef, description);
     }

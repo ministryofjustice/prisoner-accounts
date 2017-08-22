@@ -9,6 +9,8 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.AccountRepository;
 import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionRepository;
 
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,5 +78,19 @@ public class AccountService {
         return accountRepository.findByEstablishmentIdAndPrisonerIdAndAccountStatus(establishmentId, prisonerId, Account.AccountStatuses.OPEN);
     }
 
+    public void checkNotSavingsAccount(Account acc) throws DebitNotSupportedException {
+        if (acc.getAccountType() == Account.AccountTypes.SAVINGS) {
+            throw new DebitNotSupportedException("Cannot debit a savings account.");
+        }
+    }
 
+
+    public void closeAccount(Account sourceAccount) {
+        Account modifiedAccount = sourceAccount.toBuilder()
+                .accountStatus(Account.AccountStatuses.CLOSED)
+                .accountClosedDateTime(ZonedDateTime.now(ZoneOffset.UTC))
+                .build();
+        accountRepository.save(
+                modifiedAccount);
+    }
 }

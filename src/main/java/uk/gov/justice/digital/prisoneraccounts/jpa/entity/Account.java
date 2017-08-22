@@ -18,7 +18,7 @@ import java.time.ZonedDateTime;
 @Entity
 @Table(name = "ACCOUNTS")
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor
 public class Account {

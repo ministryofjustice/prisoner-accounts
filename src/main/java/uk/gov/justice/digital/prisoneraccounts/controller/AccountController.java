@@ -18,11 +18,13 @@ import uk.gov.justice.digital.prisoneraccounts.api.TransactionDetail;
 import uk.gov.justice.digital.prisoneraccounts.api.TransferRequest;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Transaction;
+import uk.gov.justice.digital.prisoneraccounts.service.AccountClosedException;
 import uk.gov.justice.digital.prisoneraccounts.service.AccountService;
 import uk.gov.justice.digital.prisoneraccounts.service.DebitNotSupportedException;
 import uk.gov.justice.digital.prisoneraccounts.service.InsufficientFundsException;
 import uk.gov.justice.digital.prisoneraccounts.service.LedgerService;
 import uk.gov.justice.digital.prisoneraccounts.service.NoSuchAccountException;
+import uk.gov.justice.digital.prisoneraccounts.service.PrisonerTransferService;
 import uk.gov.justice.digital.prisoneraccounts.service.TransactionService;
 
 import java.time.ZonedDateTime;
@@ -40,21 +42,23 @@ public class AccountController {
     private final LedgerService ledgerService;
     private final AccountService accountService;
     private final TransactionService transactionService;
+    private final PrisonerTransferService prisonerTransferService;
 
     @Autowired
-    public AccountController(LedgerService ledgerService, AccountService accountService, TransactionService transactionService) {
+    public AccountController(LedgerService ledgerService, AccountService accountService, TransactionService transactionService, PrisonerTransferService prisonerTransferService) {
         this.ledgerService = ledgerService;
         this.accountService = accountService;
         this.transactionService = transactionService;
+        this.prisonerTransferService = prisonerTransferService;
     }
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/{accountName}", method = RequestMethod.PUT)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/{accountName}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<TransactionDetail> ledgerEntryCashAccount(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId,
             @PathVariable("accountName") String accountName,
-            @RequestBody LedgerEntry ledgerEntry) throws DebitNotSupportedException, InsufficientFundsException {
+            @RequestBody LedgerEntry ledgerEntry) throws DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
         Transaction transaction = ledgerService.postTransaction(
                 establishmentId,
                 prisonerId,
@@ -78,7 +82,7 @@ public class AccountController {
                 .build(), HttpStatus.OK);
     }
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/{accName}/balance", method = RequestMethod.GET)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/{accName}/balance", method = RequestMethod.GET)
     public ResponseEntity<Balance> getBalance(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId,
@@ -91,7 +95,7 @@ public class AccountController {
                 .orElse(new ResponseEntity<>(NOT_FOUND));
     }
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/{accName}/transactions", method = RequestMethod.GET)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/{accName}/transactions", method = RequestMethod.GET)
     public ResponseEntity<List<TransactionDetail>> getPrisonerTransactions(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId,
@@ -123,7 +127,7 @@ public class AccountController {
 
     }
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/summary", method = RequestMethod.GET)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/summary", method = RequestMethod.GET)
     public ResponseEntity<List<Balance>> getPrisonerAccountsSummary(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId) {
@@ -150,18 +154,31 @@ public class AccountController {
     }
 
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/transfer", method = RequestMethod.POST)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/transfer", method = RequestMethod.POST)
     public void transferBetweenPrisonerAccounts(
             @RequestBody TransferRequest transferRequest,
             @PathVariable("establishmentId") String establishmentId,
-            @PathVariable("prisonerId") String prisonerId) throws NoSuchAccountException, DebitNotSupportedException, InsufficientFundsException {
+            @PathVariable("prisonerId") String prisonerId) throws NoSuchAccountException, DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
 
         Account sourceAccount = accountService.accountFor(establishmentId,prisonerId,transferRequest.getFromAccountName())
                 .orElseThrow(() -> new NoSuchAccountException("No account found named: " + transferRequest.getFromAccountName()));
 
         Account targetAccount = accountService.getOrCreateAccount(establishmentId,prisonerId,transferRequest.getToAccountName());
 
-        transactionService.transferFunds(sourceAccount, targetAccount, transferRequest.getAmountPence());
+        transactionService.transferFunds(sourceAccount, targetAccount, transferRequest.getAmountPence(), "balance transfer");
+    }
+
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/transfer", method = RequestMethod.POST)
+    public void transferPrisonerAccountsBetweenEstablishments(
+            @RequestParam("toEstablishmentId") String toEstablishmentId,
+            @PathVariable("establishmentId") String establishmentId,
+            @PathVariable("prisonerId") String prisonerId) throws NoSuchAccountException, DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
+
+        List<Account> accounts = accountService.prisonerOpenAccounts(establishmentId, prisonerId);
+
+        prisonerTransferService.transferAccountsToInstitutionId(accounts, toEstablishmentId);
+
+
     }
 
     @ExceptionHandler(DebitNotSupportedException.class)
