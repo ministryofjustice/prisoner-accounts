@@ -10,6 +10,7 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 import java.time.ZoneOffset;
@@ -43,6 +44,8 @@ public class Account {
     @Builder.Default
     private ZonedDateTime accountCreatedDateTime = ZonedDateTime.now(ZoneOffset.UTC);
     private ZonedDateTime accountClosedDateTime;
+    @OneToOne
+    private PrisonerTransfer prisonerTransfer;
 
     public enum AccountTypes {SAVINGS, FULL_ACCESS}
 

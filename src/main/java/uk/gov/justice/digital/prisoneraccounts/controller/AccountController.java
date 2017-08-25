@@ -29,6 +29,7 @@ import uk.gov.justice.digital.prisoneraccounts.service.TransactionService;
 
 import java.time.ZonedDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,7 @@ public class AccountController {
             @PathVariable("prisonerId") String prisonerId,
             @PathVariable("accName") String accName) {
 
-        Optional<Balance> maybeBalance = accountService.balanceOf(establishmentId, prisonerId, accName);
+        Optional<Balance> maybeBalance = accountService.currentBalanceOf(establishmentId, prisonerId, accName);
 
         return maybeBalance
                 .map(balance -> new ResponseEntity<>(balance, HttpStatus.OK))
@@ -134,11 +135,23 @@ public class AccountController {
 
         List<Balance> balanceList = accountService.prisonerOpenAccounts(establishmentId, prisonerId)
                 .stream()
-                .map(acc -> accountService.balanceOf(acc))
+                .map(acc -> accountService.currentBalanceOf(acc))
                 .collect(Collectors.toList());
 
         return accountSummaryFor(balanceList);
 
+    }
+
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/accounts", method = RequestMethod.GET)
+    public Map<String, List<Map>> getPrisonerAccountsAtDateTime(
+            @PathVariable("establishmentId") String establishmentId,
+            @RequestParam(name = "includeClosed", required = false) boolean includeClosed,
+            @RequestParam(name = "atDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime atDateTime) {
+
+
+        Map<String, List<Map>> balances = accountService.establishmentAccountsSummary(establishmentId, includeClosed, Optional.ofNullable(atDateTime));
+
+        return balances;
     }
 
     private ResponseEntity<List<Balance>> accountSummaryFor(List<Balance> balanceList) {
@@ -160,10 +173,10 @@ public class AccountController {
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId) throws NoSuchAccountException, DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
 
-        Account sourceAccount = accountService.accountFor(establishmentId,prisonerId,transferRequest.getFromAccountName())
+        Account sourceAccount = accountService.accountFor(establishmentId, prisonerId, transferRequest.getFromAccountName())
                 .orElseThrow(() -> new NoSuchAccountException("No account found named: " + transferRequest.getFromAccountName()));
 
-        Account targetAccount = accountService.getOrCreateAccount(establishmentId,prisonerId,transferRequest.getToAccountName());
+        Account targetAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, transferRequest.getToAccountName(), Optional.empty());
 
         transactionService.transferFunds(sourceAccount, targetAccount, transferRequest.getAmountPence(), "balance transfer");
     }
@@ -171,12 +184,11 @@ public class AccountController {
     @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/transfer", method = RequestMethod.POST)
     public void transferPrisonerAccountsBetweenEstablishments(
             @RequestParam("toEstablishmentId") String toEstablishmentId,
-            @PathVariable("establishmentId") String establishmentId,
+            @PathVariable("establishmentId") String fromEstablishmentId,
             @PathVariable("prisonerId") String prisonerId) throws NoSuchAccountException, DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
 
-        List<Account> accounts = accountService.prisonerOpenAccounts(establishmentId, prisonerId);
 
-        prisonerTransferService.transferAccountsToInstitutionId(accounts, toEstablishmentId);
+        prisonerTransferService.transferPrisonerAccounts(prisonerId, fromEstablishmentId, toEstablishmentId);
 
 
     }

@@ -53,12 +53,12 @@ public class TransactionService {
 
     private void checkNotClosed(Account account) throws AccountClosedException {
         if (account.getAccountStatus() == Account.AccountStatuses.CLOSED) {
-            throw new AccountClosedException("Account " + account.getAccountId() + " is closed. New transactions not permitted." );
+            throw new AccountClosedException("Account " + account.getAccountId() + " is closed. New transactions not permitted.");
         }
     }
 
     private void checkSufficientFunds(Account acc, Long amountPence) throws InsufficientFundsException {
-        if (accountService.balanceOf(acc).getAmountPence() < amountPence) {
+        if (accountService.currentBalanceOf(acc).getAmountPence() < amountPence) {
             throw new InsufficientFundsException("Insufficient funds.");
         }
     }

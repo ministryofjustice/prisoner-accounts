@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.prisoneraccounts.service;
 
-import com.google.common.collect.ImmutableList;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +13,7 @@ import uk.gov.justice.digital.prisoneraccounts.jpa.repository.TransactionReposit
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -48,7 +48,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
         Account resolvedAccount = accountRepository.findOne(newAccount.getAccountId());
 
@@ -62,7 +62,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "my_account";
 
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
         Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
 
@@ -79,7 +79,7 @@ public class PrisonerAccountsServiceTest {
 
         String accountName = "savings";
 
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
         Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
 
@@ -94,7 +94,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
         transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
         Transaction transaction = transactionService.debitAccount(newAccount, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
 
@@ -106,7 +106,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
         transactionService.debitAccount(account, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
     }
@@ -116,7 +116,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "savings";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
         transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
         ledgerService.postTransaction(establishmentId, prisonerId, accountName, "try a debit", "my ref", 100l, Operations.DEBIT);
     }
@@ -126,8 +126,8 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
-        assertThat(accountService.balanceOf(newAccount).getAmountPence()).isEqualTo(0l);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
+        assertThat(accountService.currentBalanceOf(newAccount).getAmountPence()).isEqualTo(0l);
     }
 
     @Test
@@ -135,7 +135,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        assertThat(accountService.balanceOf(establishmentId, prisonerId, accountName).isPresent()).isFalse();
+        assertThat(accountService.currentBalanceOf(establishmentId, prisonerId, accountName).isPresent()).isFalse();
     }
 
     @Test
@@ -143,8 +143,8 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
-        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
-        Account duplicateAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName);
+        Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
+        Account duplicateAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
         assertThat(duplicateAccount.getAccountId()).isEqualTo(newAccount.getAccountId());
     }
@@ -154,14 +154,14 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
 
-        Account sourceAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, "cash");
-        Account targetAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, "savings");
+        Account sourceAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, "cash", Optional.empty());
+        Account targetAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, "savings", Optional.empty());
 
         Transaction transaction = transactionService.creditAccount(sourceAccount, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
-        transactionService.transferFunds(sourceAccount,targetAccount,100l, "balance transfer");
+        transactionService.transferFunds(sourceAccount, targetAccount, 100l, "balance transfer");
 
-        assertThat(accountService.balanceOf(sourceAccount).getAmountPence()).isEqualTo(23l);
-        assertThat(accountService.balanceOf(targetAccount).getAmountPence()).isEqualTo(100);
+        assertThat(accountService.currentBalanceOf(sourceAccount).getAmountPence()).isEqualTo(23l);
+        assertThat(accountService.currentBalanceOf(targetAccount).getAmountPence()).isEqualTo(100);
 
     }
 
@@ -170,7 +170,7 @@ public class PrisonerAccountsServiceTest {
         String establishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
 
-        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, "cash");
+        Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, "cash", Optional.empty());
 
         accountService.closeAccount(account);
 
@@ -180,22 +180,22 @@ public class PrisonerAccountsServiceTest {
 
     @Test
     public void canTransferPrisonerAccountsBetweenEstablishments() throws InsufficientFundsException, AccountClosedException, DebitNotSupportedException {
-        String establishmentId = UUID.randomUUID().toString();
+        String sourceEstablishmentId = UUID.randomUUID().toString();
         String prisonerId = UUID.randomUUID().toString();
 
-        Account cash = accountService.getOrCreateAccount(establishmentId, prisonerId, "cash");
-        Account spend = accountService.getOrCreateAccount(establishmentId, prisonerId, "spend");
-        Account savings = accountService.getOrCreateAccount(establishmentId, prisonerId, "savings");
+        Account cash = accountService.getOrCreateAccount(sourceEstablishmentId, prisonerId, "cash", Optional.empty());
+        Account spend = accountService.getOrCreateAccount(sourceEstablishmentId, prisonerId, "spend", Optional.empty());
+        Account savings = accountService.getOrCreateAccount(sourceEstablishmentId, prisonerId, "savings", Optional.empty());
 
         transactionService.creditAccount(cash, 1l, "cr1", "gift");
         transactionService.creditAccount(spend, 2l, "cr2", "gift");
         transactionService.creditAccount(savings, 3l, "cr3", "gift");
 
-        String newEstablishmentId = UUID.randomUUID().toString();
+        String targetEstablishmentId = UUID.randomUUID().toString();
 
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC);
 
-        prisonerTransferService.transferAccountsToInstitutionId(ImmutableList.of(cash,spend,savings), newEstablishmentId);
+        prisonerTransferService.transferPrisonerAccounts(prisonerId, sourceEstablishmentId, targetEstablishmentId);
 
         Account updatedCash = accountRepository.findOne(cash.getAccountId());
         Account updatedSpend = accountRepository.findOne(cash.getAccountId());
@@ -209,17 +209,17 @@ public class PrisonerAccountsServiceTest {
         assertThat(updatedSpend.getAccountClosedDateTime()).isGreaterThanOrEqualTo(now);
         assertThat(updatedSavings.getAccountClosedDateTime()).isGreaterThanOrEqualTo(now);
 
-        assertThat(accountService.balanceOf(updatedCash).getAmountPence()).isEqualTo(0l);
-        assertThat(accountService.balanceOf(updatedSpend).getAmountPence()).isEqualTo(0l);
-        assertThat(accountService.balanceOf(updatedSavings).getAmountPence()).isEqualTo(0l);
+        assertThat(accountService.currentBalanceOf(updatedCash).getAmountPence()).isEqualTo(0l);
+        assertThat(accountService.currentBalanceOf(updatedSpend).getAmountPence()).isEqualTo(0l);
+        assertThat(accountService.currentBalanceOf(updatedSavings).getAmountPence()).isEqualTo(0l);
 
-        Account transferredCash = accountService.accountFor(newEstablishmentId, prisonerId, "cash").get();
-        Account transferredSpend = accountService.accountFor(newEstablishmentId, prisonerId, "spend").get();
-        Account transferredSavings = accountService.accountFor(newEstablishmentId, prisonerId, "savings").get();
+        Account transferredCash = accountService.accountFor(targetEstablishmentId, prisonerId, "cash").get();
+        Account transferredSpend = accountService.accountFor(targetEstablishmentId, prisonerId, "spend").get();
+        Account transferredSavings = accountService.accountFor(targetEstablishmentId, prisonerId, "savings").get();
 
-        assertThat(accountService.balanceOf(transferredCash).getAmountPence()).isEqualTo(1l);
-        assertThat(accountService.balanceOf(transferredSpend).getAmountPence()).isEqualTo(2l);
-        assertThat(accountService.balanceOf(transferredSavings).getAmountPence()).isEqualTo(3l);
+        assertThat(accountService.currentBalanceOf(transferredCash).getAmountPence()).isEqualTo(1l);
+        assertThat(accountService.currentBalanceOf(transferredSpend).getAmountPence()).isEqualTo(2l);
+        assertThat(accountService.currentBalanceOf(transferredSavings).getAmountPence()).isEqualTo(3l);
     }
 
 }
