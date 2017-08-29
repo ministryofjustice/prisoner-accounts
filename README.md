@@ -26,6 +26,12 @@ or
 
 `java -jar build/libs/prisoner-accounts-1.0-SNAPSHOT.jar --server.port=8800`
 
+## Building a docker container
+`./buildDocker.sh`
+
+and then
+
+`docker run -p8080:8080 prisoner-accounts`
 
 ### Swagger UI
 Swagger UI is exposed under /swagger-ui.html
