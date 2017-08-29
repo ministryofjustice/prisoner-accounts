@@ -23,7 +23,7 @@ public class SwaggerConfig {
                 .useDefaultResponseMessages(false)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("uk.gov.justice.digital.prisoneraccounts.controller"))
-                .paths(regex("/prisoneraccounts.*"))
+                .paths(regex("/*.*"))
                 .build();
 
         docket.genericModelSubstitutes(Optional.class);

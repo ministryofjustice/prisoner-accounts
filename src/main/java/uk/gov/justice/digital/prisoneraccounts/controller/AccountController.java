@@ -145,11 +145,10 @@ public class AccountController {
     @RequestMapping(value = "/establishments/{establishmentId}/prisoners/accounts", method = RequestMethod.GET)
     public Map<String, List<Map>> getPrisonerAccountsAtDateTime(
             @PathVariable("establishmentId") String establishmentId,
-            @RequestParam(name = "includeClosed", required = false) boolean includeClosed,
             @RequestParam(name = "atDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime atDateTime) {
 
 
-        Map<String, List<Map>> balances = accountService.establishmentAccountsSummary(establishmentId, includeClosed, Optional.ofNullable(atDateTime));
+        Map<String, List<Map>> balances = accountService.establishmentAccountsSummary(establishmentId, Optional.ofNullable(atDateTime));
 
         return balances;
     }

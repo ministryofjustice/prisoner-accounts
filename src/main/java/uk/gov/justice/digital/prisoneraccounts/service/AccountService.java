@@ -109,7 +109,7 @@ public class AccountService {
         return accountRepository.findByPrisonerTransferIn(transfersIn);
     }
 
-    public Map<String, List<Map>> establishmentAccountsSummary(String establishmentId, boolean includeClosed, Optional<ZonedDateTime> maybeAtDateTime) {
+    public Map<String, List<Map>> establishmentAccountsSummary(String establishmentId, Optional<ZonedDateTime> maybeAtDateTime) {
         List<Account> accounts = maybeAtDateTime.map(asOfDateTime -> accountRepository.findByEstablishmentIdAndAccountCreatedDateTimeBefore(establishmentId, asOfDateTime))
                 .orElse(accountRepository.findByEstablishmentIdAndAccountStatus(establishmentId, Account.AccountStatuses.OPEN));
 
