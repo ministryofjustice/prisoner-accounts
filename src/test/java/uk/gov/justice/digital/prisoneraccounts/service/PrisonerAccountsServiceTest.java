@@ -64,12 +64,16 @@ public class PrisonerAccountsServiceTest {
 
         Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
-        Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
+        String description = UUID.randomUUID().toString();
+        String clientRef = "R186 Signal Box";
+        Transaction transaction = transactionService.creditAccount(account, 123l, description, clientRef);
 
         assertThat(transaction).isNotNull();
         Transaction actual = transactionRepository.findOne(transaction.getTransactionId());
         assertThat(actual).isNotNull();
         assertThat(actual.getAmountPence()).isEqualTo(123l);
+        assertThat(actual.getDescription()).isEqualTo(description);
+        assertThat(actual.getClientReference()).isEqualTo(clientRef);
     }
 
     @Test
@@ -81,12 +85,16 @@ public class PrisonerAccountsServiceTest {
 
         Account account = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
 
-        Transaction transaction = transactionService.creditAccount(account, 123l, UUID.randomUUID().toString(), "R186 Signal Box");
+        String description = UUID.randomUUID().toString();
+        String clientRef = "R186 Signal Box";
+        Transaction transaction = transactionService.creditAccount(account, 123l, description, clientRef);
 
         assertThat(transaction).isNotNull();
         Transaction actual = transactionRepository.findOne(transaction.getTransactionId());
         assertThat(actual).isNotNull();
         assertThat(actual.getAmountPence()).isEqualTo(123l);
+        assertThat(actual.getDescription()).isEqualTo(description);
+        assertThat(actual.getClientReference()).isEqualTo(clientRef);
     }
 
     @Test
@@ -95,9 +103,13 @@ public class PrisonerAccountsServiceTest {
         String prisonerId = UUID.randomUUID().toString();
         String accountName = "my_account";
         Account newAccount = accountService.getOrCreateAccount(establishmentId, prisonerId, accountName, Optional.empty());
-        transactionService.creditAccount(newAccount, 1000l, UUID.randomUUID().toString(), "Gift");
-        Transaction transaction = transactionService.debitAccount(newAccount, 100l, UUID.randomUUID().toString(), "R186 Signal Box");
+        String description = UUID.randomUUID().toString();
+        String clientRef = UUID.randomUUID().toString();
+        transactionService.creditAccount(newAccount, 1000l, description, clientRef);
+        Transaction transaction = transactionService.debitAccount(newAccount, 100l, description, clientRef);
 
+        assertThat(transaction.getDescription()).isEqualTo(description);
+        assertThat(transaction.getClientReference()).isEqualTo(clientRef);
         assertThat(transaction).isNotNull();
     }
 

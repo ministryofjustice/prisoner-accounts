@@ -24,7 +24,7 @@ public class TransactionService {
         this.transactionRepository = transactionRepository;
     }
 
-    public Transaction creditAccount(Account account, Long amountPence, String clientRef, String description) throws AccountClosedException {
+    public Transaction creditAccount(Account account, Long amountPence, String description, String clientRef) throws AccountClosedException {
 
         checkNotClosed(account);
 
@@ -38,7 +38,7 @@ public class TransactionService {
     }
 
 
-    public Transaction debitAccount(Account account, Long amountPence, String clientRef, String description) throws DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
+    public Transaction debitAccount(Account account, Long amountPence, String description, String clientRef) throws DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
         checkSufficientFunds(account, amountPence);
         checkNotClosed(account);
 
