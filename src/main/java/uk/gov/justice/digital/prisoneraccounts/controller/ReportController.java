@@ -9,12 +9,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.digital.prisoneraccounts.api.AccountState;
 import uk.gov.justice.digital.prisoneraccounts.api.EstablishmentTransferSummary;
 import uk.gov.justice.digital.prisoneraccounts.service.AccountService;
 import uk.gov.justice.digital.prisoneraccounts.service.PrisonerTransferService;
 import uk.gov.justice.digital.prisoneraccounts.service.TransactionService;
 
 import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RestController
@@ -41,6 +44,17 @@ public class ReportController {
 
         return prisonerTransferService.prisonerTransferAccountsSummary(establishmentId, Optional.ofNullable(fromDateTime), Optional.ofNullable(toDateTime));
 
+    }
+
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/accounts", method = RequestMethod.GET)
+    public Map<String, List<AccountState>> getPrisonAccountsReport(
+            @PathVariable("establishmentId") String establishmentId,
+            @RequestParam(name = "atDateTime", required = true) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime atDateTime) {
+
+
+        Map<String, List<AccountState>> balances = accountService.establishmentAccountsSummary(establishmentId, Optional.of(atDateTime));
+
+        return balances;
     }
 
 }

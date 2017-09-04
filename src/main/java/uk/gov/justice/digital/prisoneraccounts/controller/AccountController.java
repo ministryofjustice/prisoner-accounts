@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.digital.prisoneraccounts.api.AccountState;
 import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.api.LedgerEntry;
 import uk.gov.justice.digital.prisoneraccounts.api.TransactionDetail;
@@ -128,7 +129,7 @@ public class AccountController {
 
     }
 
-    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/summary", method = RequestMethod.GET)
+    @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts", method = RequestMethod.GET)
     public ResponseEntity<List<Balance>> getPrisonerAccountsSummary(
             @PathVariable("establishmentId") String establishmentId,
             @PathVariable("prisonerId") String prisonerId) {
@@ -143,12 +144,10 @@ public class AccountController {
     }
 
     @RequestMapping(value = "/establishments/{establishmentId}/prisoners/accounts", method = RequestMethod.GET)
-    public Map<String, List<Map>> getPrisonerAccountsAtDateTime(
-            @PathVariable("establishmentId") String establishmentId,
-            @RequestParam(name = "atDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime atDateTime) {
+    public Map<String, List<AccountState>> getPrisonAccounts(
+            @PathVariable("establishmentId") String establishmentId) {
 
-
-        Map<String, List<Map>> balances = accountService.establishmentAccountsSummary(establishmentId, Optional.ofNullable(atDateTime));
+        Map<String, List<AccountState>> balances = accountService.establishmentAccountsSummary(establishmentId, Optional.empty());
 
         return balances;
     }

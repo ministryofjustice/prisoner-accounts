@@ -425,7 +425,7 @@ public class PrisonerAccountsIntegrationTest {
                 .statusCode(200);
 
         Balance[] summary = given()
-                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts/summary", establishmentId, prisonerId)
+                .get("/establishments/{establishmentId}/prisoners/{prisonerId}/accounts", establishmentId, prisonerId)
                 .then()
                 .statusCode(200)
                 .extract()

@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import uk.gov.justice.digital.prisoneraccounts.api.AccountState;
 import uk.gov.justice.digital.prisoneraccounts.api.Balance;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.Account;
 import uk.gov.justice.digital.prisoneraccounts.jpa.entity.PrisonerTransfer;
@@ -109,15 +110,24 @@ public class AccountService {
         return accountRepository.findByPrisonerTransferIn(transfersIn);
     }
 
-    public Map<String, List<Map>> establishmentAccountsSummary(String establishmentId, Optional<ZonedDateTime> maybeAtDateTime) {
+    public Map<String, List<AccountState>> establishmentAccountsSummary(String establishmentId, Optional<ZonedDateTime> maybeAtDateTime) {
         List<Account> accounts = maybeAtDateTime.map(asOfDateTime -> accountRepository.findByEstablishmentIdAndAccountCreatedDateTimeBefore(establishmentId, asOfDateTime))
                 .orElse(accountRepository.findByEstablishmentIdAndAccountStatus(establishmentId, Account.AccountStatuses.OPEN));
 
         Map<String, List<Account>> prisonerAccounts = accounts.stream().collect(Collectors.groupingBy(Account::getPrisonerId));
 
-        Map<String, List<Map>> prisonerBalances = Maps.transformValues(prisonerAccounts, input -> input.stream().map(acc ->
-                ImmutableMap.of(balanceDescriptor(maybeAtDateTime), balanceAsOf(acc, maybeAtDateTime), accountStatusDescriptorOf(acc, maybeAtDateTime), historicAccountStatusOf(acc, maybeAtDateTime))).collect(Collectors.toList()));
+        Map<String, List<AccountState>> prisonerBalances = Maps.transformValues(prisonerAccounts, input -> input.stream().map(acc -> xyz(acc,maybeAtDateTime)).collect(Collectors.toList()));
+        
+//                ImmutableMap.of(balanceDescriptor(maybeAtDateTime), balanceAsOf(acc, maybeAtDateTime), accountStatusDescriptorOf(acc, maybeAtDateTime), historicAccountStatusOf(acc, maybeAtDateTime))).collect(Collectors.toList()));
         return prisonerBalances;
+    }
+
+    private AccountState xyz(Account acc, Optional<ZonedDateTime> maybeAtDateTime) {
+        return AccountState.builder()
+                .accountName(acc.getAccountName())
+                .amountPence(balanceAsOf(acc, maybeAtDateTime).getAmountPence())
+                .accountStatus(historicAccountStatusOf(acc, maybeAtDateTime))
+                .build();
     }
 
     private Account.AccountStatuses historicAccountStatusOf(Account acc, Optional<ZonedDateTime> maybeAtDateTime) {
