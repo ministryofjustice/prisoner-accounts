@@ -1,0 +1,26 @@
+version: '2'
+
+services:
+    prisoner_accounts:
+        build: .
+        stdin_open: true
+        tty: true
+        expose:
+            - 8080
+        ports:
+            - "8080:8080"
+    ui:
+        build: ./ui
+        stdin_open: true
+        tty: true
+        expose:
+            - 3000
+        ports:
+            - "3000:3000"
+        environment:
+            ACCOUNT_SERVICE_HOST: prisoner_accounts
+            ACCOUNT_SERVICE_PORT: 8080
+        links:
+            - prisoner_accounts
+        depends_on:
+            - prisoner_accounts

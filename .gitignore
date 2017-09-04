@@ -41,6 +41,7 @@ hs_err_pid*
 .idea/**/uiDesigner.xml
 
 # Gradle:
+.gradle
 .idea/**/gradle.xml
 .idea/**/libraries
 
@@ -54,6 +55,7 @@ hs_err_pid*
 
 # IntelliJ
 /out/
+build
 
 # mpeltonen/sbt-idea plugin
 .idea_modules/
@@ -66,4 +68,3 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
-

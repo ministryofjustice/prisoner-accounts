@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<main id="content" role="main">
+
+	<p style="margin-top:30px;"><a href="/">Back to the homepage</a></p>
+
+	<section class="column-first">
+
+		<h2 class="heading-large">Prisons</h2>
+
+		<ul>
+			{% for prison in prisons %}
+			<li><a href="/prison/{{ prison.prison_id }}">{{ prison.name }}</a></li>
+			{% else %}
+			<li>Prisons list here...</li>
+			{% endfor %}
+		</ul>
+	</section>
+
+</main>
+
+{% endblock %}
