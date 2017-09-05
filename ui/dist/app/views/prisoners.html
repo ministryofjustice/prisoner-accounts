@@ -11,7 +11,11 @@
 		<h2 class="heading-large">Prisoners</h2>
 
 		<ul>
+			{% for prisoner in prisoners %}
+			<li><a href="/prisoner/{{ prisoner.prisoner_id }}">{{ prisoner.full_name }}</a></li>
+			{% else %}
 			<li>Prisoners list here...</li>
+			{% endfor %}
 		</ul>
 	</section>
 

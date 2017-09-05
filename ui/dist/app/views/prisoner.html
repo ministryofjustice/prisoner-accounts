@@ -4,123 +4,45 @@
 
 <main id="content" role="main">
 
-	<p style="margin-top:30px;"><a href="/">Back to the homepage</a></p>
+	<h1 class="heading-xlarge" style="margin-bottom:15px;">{{ prisoner.full_name }}</h1>
 
-	<section class="column-first">
+	<div class="grid-row">
+		<section class="column-two-thirds">
 
-		<h2 class="heading-large">Prisoner</h2>
+			<div class="location"><strong>{{ prisoner.prisoner_id }}</strong></div>
 
-		<h3 class="heading-small">Prisoner Id</h3>
-		<p>{{ prisoner.prisoner_id }}</p>
+			<h3 class="heading-small">Prison</h3>
+			<p><a href="/prison/{{ prison.prison_id }}">{{ prison.name }}</a></p>
 
-		<h3 class="heading-small">Name</h3>
-		<p>{{ prisoner.full_name }}</p>
+			<h2 class="heading-medium">Prisoner accounts</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Account</th>
+						<th align="right">Balance</th>
+					</tr>
+				</thead>
+				<tbody>
+					{% for account in accounts %}
+					<tr>
+						<th><a href="/account/{{ prisoner.prisoner_id }}/{{ account.accountName }}">{{ account.accountName }}</a></th>
+						<td align="right">{{ account.amountPence }}</td>
+					</tr>
+					{% else %}
+					<tr>
+						<td colspan="2">There are currently no accounts set up for this individual.</td>
+					</tr>
+					{% endfor %}
+				</tbody>
+			</table>
 
-		<h3 class="heading-small">Prison</h3>
-		<p><a href="/prison/{{ prison.prison_id }}">{{ prison.name }}</a></p>
-
-		<h3 class="heading-medium">Prisoner accounts</h3>
-		<table>
-			<thead>
-				<tr>
-					<th>Account</th>
-					<th align="right">Balance</th>
-				</tr>
-			</thead>
-			<tbody>
-				{% for account in accounts %}
-				<tr>
-					<th>{{ account.accountName }}</th>
-					<td align="right">{{ account.amountPence }}</td>
-				</tr>
-				{% else %}
-				<tr>
-					<td colspan="2">There are currently no accounts set up for this individual.</td>
-				</tr>
-				{% endfor %}
-			</tbody>
-		</table>
-
-		<h3 class="heading-medium">Credit prisoner</h3>
-		<form method="post" action="/prisoner/{{ prisoner.prisoner_id }}/credit">
-			<input type="hidden" name="account_name" value="cash" />
-
-			<h4 class="heading-small">Amount to credit</h4>
-			<p><input type="number" name="amount" class="form-control" /></p>
-
-			<h4 class="heading-small">Reference</h4>
-			<p><input type="text" name="reference" class="form-control" /></p>
-
-			<h4 class="heading-small">Description</h4>
-			<p><textarea name="description" class="form-control"></textarea></p>
-
-			<p><button type="submit" class="button">Credit account</button></p>
-		</form>
-
-		<hr/>
-
-		<h3 class="heading-medium">Debit prisoner</h3>
-		<form method="post" action="/prisoner/{{ prisoner.prisoner_id }}/debit">
-			<h4 class="heading-small">Account to debit</h4>
-			<p><select type="number" name="account_name" class="form-control">
-				<option value="cash">Cash account</option>
-				<option value="spend">Spend account</option>
-				<option value="savings">Savings account</option>
-			</select></p>
-
-			<h4 class="heading-small">Amount to debit</h4>
-			<p><input type="number" name="amount" class="form-control" /></p>
-
-			<h4 class="heading-small">Reference</h4>
-			<p><input type="text" name="reference" class="form-control" /></p>
-
-			<h4 class="heading-small">Description</h4>
-			<p><textarea name="description" class="form-control"></textarea></p>
-
-			<p><button type="submit" class="button">Debit account</button></p>
-		</form>
-
-		<hr/>
-
-		<h3 class="heading-medium">Account transfer</h3>
-		<form method="post" action="/prisoner/{{ prisoner.prisoner_id }}/transfer">
-			<h4 class="heading-small">Account to debit</h4>
-			<p><select type="number" name="from" class="form-control">
-				<option value="cash">Cash account</option>
-				<option value="spend">Spend account</option>
-				<option value="savings">Savings account</option>
-			</select></p>
-
-			<h4 class="heading-small">Account to credit</h4>
-			<p><select type="number" name="to" class="form-control">
-				<option value="cash">Cash account</option>
-				<option value="spend">Spend account</option>
-				<option value="savings">Savings account</option>
-			</select></p>
-
-			<h4 class="heading-small">Amount to transfer</h4>
-			<p><input type="number" name="amount" class="form-control" /></p>
-
-			<p><button type="submit" class="button">Transfer</button></p>
-		</form>
-
-		<hr/>
-
-		<h3 class="heading-medium">Move prisoner accounts</h3>
-		<form method="post" action="/prisoner/{{ prisoner.prisoner_id }}/move">
-			<h4 class="heading-small">Reception prison</h4>
-			<p><select type="number" name="to" class="form-control">
-				{% for prison in prisons %}
-					{% if prison.prison_id !== prisoner.prison %}
-						<option value="{{ prison.prison_id }}">{{ prison.name }}</option>
-					{% endif %}
-				{% endfor %}
-			</select></p>
-
-			<p><button type="submit" class="button">Move accounts</button></p>
-		</form>
-	</section>
-
+			<h2 class="heading-medium">What would you like to do next?</h2>
+			<p><a href="/prisoner/{{ prisoner.prisoner_id }}/credit">Credit an account</a></p>
+			<p><a href="/prisoner/{{ prisoner.prisoner_id }}/debit">Debit an account</a></p>
+			<p><a href="/prisoner/{{ prisoner.prisoner_id }}/transfer">Transfer between accounts</a></p>
+			<p><a href="/prisoner/{{ prisoner.prisoner_id }}/move">Move accounts to another establishment</a></p>
+		</section>
+	</div>
 </main>
 
 {% endblock %}

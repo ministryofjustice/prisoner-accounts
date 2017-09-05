@@ -7,9 +7,17 @@ const accountServiceDomain = () => 'http://' + process.env.ACCOUNT_SERVICE_HOST 
 const accountServiceUri = (path) => accountServiceDomain() + path;
 const accountReportingServiceUri = (path) => accountServiceUri('/reporting' + path);
 
+client.registerMethod('getPrisonAccountsReport', accountReportingServiceUri('/establishments/${prison_id}/prisoners/accounts'), 'GET');
 client.registerMethod('getPrisonTransfersReport', accountReportingServiceUri('/establishments/${prison_id}/prisonertransfers'), 'GET');
 
 // private
+
+const getPrisonAccountsReport = (prison_id,  atDateTime) =>
+  new Promise((res, rej) =>
+    client.methods.getPrisonAccountsReport({
+      path: { prison_id: prison_id },
+      parameters: { atDateTime: atDateTime },
+    }, (data) => res(data)));
 
 const getPrisonTransfersReport = (prison_id) =>
   new Promise((res, rej) =>
@@ -19,4 +27,5 @@ const getPrisonTransfersReport = (prison_id) =>
 
 // exports
 
+module.exports.getPrisonAccountsReport = getPrisonAccountsReport;
 module.exports.getPrisonTransfersReport = getPrisonTransfersReport;

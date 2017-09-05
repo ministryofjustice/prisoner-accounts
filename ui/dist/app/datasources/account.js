@@ -10,10 +10,10 @@ const prisonerServiceUri = (path) => serviceUri('/prisoneraccounts/establishment
 const accountServiceUri = (path) => serviceUri('/prisoneraccounts/establishments/${prison_id}/prisoners/${prisoner_id}/accounts/${account_name}' + (path ? path: ''));
 
 // prison_id
-client.registerMethod('getPrisonerAccountsAtDateTime', prisonServiceUri('/prisoners/accounts'), 'GET');
+client.registerMethod('getPrisonAccounts', prisonServiceUri('/prisoners/accounts'), 'GET');
 
 // prison_id, prisoner_id
-client.registerMethod('getPrisonerAccountsSummary', prisonerServiceUri('/accounts/summary'), 'GET');
+client.registerMethod('getPrisonerAccountsSummary', prisonerServiceUri('/accounts'), 'GET');
 client.registerMethod('transferBetweenPrisonerAccounts', prisonerServiceUri('/accounts/transfer'), 'POST');
 client.registerMethod('transferPrisonerAccountsBetweenEstablishments', prisonerServiceUri('/transfer'), 'POST');
 
@@ -51,8 +51,8 @@ const callAccountMethod = (method) => (prison_id, prisoner_id, account_name) =>
 
 // private
 
-const getPrisonerAccountsAtDateTime =
-  callPrisonMethod(client.methods.getPrisonerAccountsAtDateTime);
+const getPrisonAccounts =
+  callPrisonMethod(client.methods.getPrisonAccounts);
 
 const getPrisonerAccountsSummary =
   callPrisonerMethod(client.methods.getPrisonerAccountsSummary);
@@ -95,7 +95,7 @@ const ledgerEntryCashAccount = (prison_id, prisoner_id, account_name, body) =>
 
 // exports
 
-module.exports.getPrisonAccounts = getPrisonerAccountsAtDateTime;
+module.exports.getPrisonAccounts = getPrisonAccounts;
 module.exports.getPrisonerAccounts = getPrisonerAccountsSummary;
 module.exports.transferBetweenPrisonerAccounts = transferBetweenPrisonerAccounts;
 module.exports.transferPrisonerAccountsBetweenEstablishments = transferPrisonerAccountsBetweenEstablishments;

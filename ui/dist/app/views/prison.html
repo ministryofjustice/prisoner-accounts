@@ -4,65 +4,67 @@
 
 <main id="content" role="main">
 
-	<p style="margin-top:30px;"><a href="/">Back to the homepage</a></p>
+	<h1 class="heading-xlarge" style="margin-bottom:15px;">{{ prison.name }}</h1>
 
-	<section class="column-first">
+	<div class="grid-row">
+		<section class="column-two-thirds">
 
-		<h2 class="heading-large">Prison</h2>
+			<div class="location"><strong>{{ prison.prison_id }}</strong></div>
 
-		<h3 class="heading-small">Prison Id</h3>
-		<p>{{ prison.prison_id }}</p>
-
-		<h3 class="heading-small">Name</h3>
-		<p>{{ prison.name }}</p>
-
-		<h2 class="heading-medium">Prisoners</h2>
+			<h2 class="heading-medium">Prisoners</h2>
 			<table>
-				<thead>
-					<tr>
-						<th>Prisoner</th>
-						<th>Account</th>
-						<th align="right">Balance</th>
-					</tr>
-				</thead>
 				<tbody>
 					{% for prisoner in prisoners %}
 					<tr>
 						<th><a href="/prisoner/{{ prisoner.prisoner_id }}">{{ prisoner.full_name }}</a></th>
-						{% for account in accounts[prisoner.prisoner_id] %}
-							<td>{{ account.currentBalance.accountName }}</td>
-							<td align="right">{{ account.currentBalance.amountPence }}</td>
-							{% endif %}
+						<td>
+							{% if accounts[prisoner.prisoner_id] %}
+							<table>
+								<thead>
+									<tr>
+										<th>Account</th>
+										<th align="right">Balance</th>
+									</tr>
+								</thead>
+								<tbody>
+										{% for account in accounts[prisoner.prisoner_id] %}
+										<tr>
+											<td><a href="/account/{{ prisoner.prisoner_id }}/{{ account.accountName }}">{{ account.accountName }}</a></td>
+											<td align="right">{{ account.amountPence }}</td>
+										</tr>
+										{% endfor %}
+								</tbody>
+							</table>
 						{% else %}
-						<td colspan="2">There are currently no accounts set up for this individual.</td>
-						{% endfor %}
+						There are currently no accounts set up for this individual.
+						{% endif %}
+						</td>
 					</tr>
 					{% else %}
-					<td colspan="3">There are currently no prisoners at this establishment.</td>
+					<td colspan="2">There are currently no prisoners at this establishment.</td>
 					{% endfor %}
 				</tbody>
 			</table>
-		</secton>
 
-		<h3 class="heading-small">Transfers In Reports</h3>
-		<ul>
-			{% for report in transfers.transferredIn %}
-			<li>{{ report.fromEstablishmentId }} = {{ report.amountToRequestPence }}</li>
-			{% else %}
-			<li>Transfers In report here...</li>
-			{% endfor %}
-		</ul>
+			<h3 class="heading-small">Transfers In Reports</h3>
+			<ul>
+				{% for report in transfers.transferredIn %}
+				<li>{{ report.fromEstablishmentId }} = {{ report.amountToRequestPence }}</li>
+				{% else %}
+				<li>Transfers In report here...</li>
+				{% endfor %}
+			</ul>
 
-		<h3 class="heading-small">Transfers Out Reports</h3>
-		<ul>
-			{% for report in transfers.transferredOut %}
-			<li>{{ report.toEstablishmentId }} = {{ report.amountToTransferPence }}</li>
-			{% else %}
-			<li>Transfers Out report here...</li>
-			{% endfor %}
-		</ul>
-	</section>
-
+			<h3 class="heading-small">Transfers Out Reports</h3>
+			<ul>
+				{% for report in transfers.transferredOut %}
+				<li>{{ report.toEstablishmentId }} = {{ report.amountToTransferPence }}</li>
+				{% else %}
+				<li>Transfers Out report here...</li>
+				{% endfor %}
+			</ul>
+		</section>
+	</div>
 </main>
 
 {% endblock %}

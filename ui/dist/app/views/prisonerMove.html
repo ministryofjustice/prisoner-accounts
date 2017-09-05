@@ -1,0 +1,34 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<main id="content" role="main">
+
+	<h1 class="heading-xlarge" style="margin-bottom:15px;">{{ prisoner.full_name }}</h1>
+
+	<div class="grid-row">
+		<section class="column-two-thirds">
+
+			<div class="location"><strong>{{ prisoner.prisoner_id }}</strong></div>
+
+			<h3 class="heading-small">Prison</h3>
+			<p><a href="/prison/{{ prison.prison_id }}">{{ prison.name }}</a></p>
+
+			<h2 class="heading-medium">Move prisoner accounts</h2>
+			<form method="post" action="/prisoner/{{ prisoner.prisoner_id }}/move">
+				<h3 class="heading-small">Reception prison</h3>
+				<p><select type="number" name="to" class="form-control">
+					{% for prison in prisons %}
+						{% if prison.prison_id !== prisoner.prison %}
+							<option value="{{ prison.prison_id }}">{{ prison.name }}</option>
+						{% endif %}
+					{% endfor %}
+				</select></p>
+
+				<p><button type="submit" class="button">Move accounts</button></p>
+			</form>
+		</section>
+	</div>
+</main>
+
+{% endblock %}

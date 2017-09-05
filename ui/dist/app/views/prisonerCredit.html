@@ -1,0 +1,36 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<main id="content" role="main">
+
+	<h1 class="heading-xlarge" style="margin-bottom:15px;">{{ prisoner.full_name }}</h1>
+
+	<div class="grid-row">
+		<section class="column-two-thirds">
+
+			<div class="location"><strong>{{ prisoner.prisoner_id }}</strong></div>
+
+			<h3 class="heading-small">Prison</h3>
+			<p><a href="/prison/{{ prison.prison_id }}">{{ prison.name }}</a></p>
+
+			<h2 class="heading-medium">Credit prisoner</h2>
+			<form method="post" action="/prisoner/{{ prisoner.prisoner_id }}/credit">
+				<input type="hidden" name="account_name" value="cash" />
+
+				<h3 class="heading-small">Amount to credit</h3>
+				<p><input type="number" name="amount" class="form-control" /></p>
+
+				<h3 class="heading-small">Reference</h3>
+				<p><input type="text" name="reference" class="form-control" /></p>
+
+				<h3 class="heading-small">Description</h3>
+				<p><textarea name="description" class="form-control"></textarea></p>
+
+				<p><button type="submit" class="button">Credit account</button></p>
+			</form>
+		</section>
+	</div>
+</main>
+
+{% endblock %}
