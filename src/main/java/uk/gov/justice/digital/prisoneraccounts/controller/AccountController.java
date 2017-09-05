@@ -152,6 +152,7 @@ public class AccountController {
         List<TransactionDetail> transactionDetailList = prisonerAccounts.stream()
                 .map(account -> transactionService.getTransactions(account, maybeFromDateTime, maybeToDateTime))
                 .map(transactions -> transactions.stream()
+                        .filter(transaction -> transaction.getDescription() != "prisoner transfer")
                         .map(transaction -> TransactionDetail.builder()
                                 .amountPence(transaction.getAmountPence())
                                 .clientReference(transaction.getClientReference())

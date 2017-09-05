@@ -19,8 +19,12 @@ client.registerMethod('transferPrisonerAccountsBetweenEstablishments', prisonerS
 
 // prison_id, prisoner_id, account_name
 client.registerMethod('getBalance', accountServiceUri('/balance'), 'GET');
-client.registerMethod('getPrisonerTransactions', accountServiceUri('/transactions'), 'GET');
+client.registerMethod('getPrisonerTransactionsByEstablishment', accountServiceUri('/transactions'), 'GET');
 client.registerMethod('ledgerEntryCashAccount', accountServiceUri(), 'PUT');
+
+// prisoner_id, account_name
+client.registerMethod('getPrisonerTransactions', serviceUri('/prisoneraccounts/prisoners/${prisoner_id}/accounts/${account_name}/transactions'), 'GET');
+
 
 const callPrisonMethod = (method) => (prison_id) =>
   new Promise((res, rej) => method(
@@ -47,6 +51,15 @@ const callAccountMethod = (method) => (prison_id, prisoner_id, account_name) =>
       headers: { 'Content-Type': 'application/json' },
     },
     (data) => (data.status < 200 || data.status > 299) ? rej(data) : res(data)
+  ).on('error', (err) => rej(err)));
+
+const callPrisonerAccountMethod = (method) => (prisoner_id, account_name) =>
+  new Promise((res, rej) => method(
+    {
+      path: helpers.inspect({ prisoner_id: prisoner_id, account_name: account_name }),
+      headers: { 'Content-Type': 'application/json' },
+    },
+    (data) => (data.status < 200 || data.status > 299) ? rej(data) : res(helpers.inspect(data))
   ).on('error', (err) => rej(err)));
 
 // private
@@ -81,7 +94,7 @@ const getBalance =
   callAccountMethod(client.methods.getBalance);
 
 const getPrisonerTransactions =
-  callAccountMethod(client.methods.getPrisonerTransactions);
+  callPrisonerAccountMethod(client.methods.getPrisonerTransactions);
 
 const ledgerEntryCashAccount = (prison_id, prisoner_id, account_name, body) =>
   new Promise((res, rej) => client.methods.ledgerEntryCashAccount(

@@ -22,16 +22,16 @@ const renderAccount = (res) => helpers.format(res, 'account');
 const createAccountViewModel = (req) => (data) =>
   ({
     prisoner_id: req.params.account_id,
-    account_id: req.params.account_id,
+    account_name: req.params.account_name,
     prisoner: data.prisoner,
-    transactions: data.transactions.map(includeBalance(0)),
+    transactions: data.transactions.map(includeBalance(0)).reverse(),
   });
 
 const displayAccount = (req, res, next) =>
   prisoner.getPrisoner(req.params.prisoner_id)
     .then((data) => Promise.all([
       data,
-      account.getPrisonerTransactions(data.prison, data.prisoner_id, req.params.account_name),
+      account.getPrisonerTransactions(data.prisoner_id, req.params.account_name),
     ]))
     .then((data) => ({ prisoner: data[0], transactions: data[1] }))
     .then(createAccountViewModel(req))
