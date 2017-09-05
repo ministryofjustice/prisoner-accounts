@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.prisoneraccounts.service;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -116,13 +115,12 @@ public class AccountService {
 
         Map<String, List<Account>> prisonerAccounts = accounts.stream().collect(Collectors.groupingBy(Account::getPrisonerId));
 
-        Map<String, List<AccountState>> prisonerBalances = Maps.transformValues(prisonerAccounts, input -> input.stream().map(acc -> xyz(acc,maybeAtDateTime)).collect(Collectors.toList()));
+        Map<String, List<AccountState>> prisonerBalances = Maps.transformValues(prisonerAccounts, input -> input.stream().map(acc -> accountStateOf(acc,maybeAtDateTime)).collect(Collectors.toList()));
         
-//                ImmutableMap.of(balanceDescriptor(maybeAtDateTime), balanceAsOf(acc, maybeAtDateTime), accountStatusDescriptorOf(acc, maybeAtDateTime), historicAccountStatusOf(acc, maybeAtDateTime))).collect(Collectors.toList()));
         return prisonerBalances;
     }
 
-    private AccountState xyz(Account acc, Optional<ZonedDateTime> maybeAtDateTime) {
+    private AccountState accountStateOf(Account acc, Optional<ZonedDateTime> maybeAtDateTime) {
         return AccountState.builder()
                 .accountName(acc.getAccountName())
                 .amountPence(balanceAsOf(acc, maybeAtDateTime).getAmountPence())
@@ -136,11 +134,7 @@ public class AccountService {
         ).orElse(acc.getAccountStatus());
     }
 
-    private String accountStatusDescriptorOf(Account acc, Optional<ZonedDateTime> maybeAtDateTime) {
-        return maybeAtDateTime.map(atDateTime -> "historicAccountStatus").orElse("currentAccountStatus");
-    }
-
-    private String balanceDescriptor(Optional<ZonedDateTime> maybeAtDateTime) {
-        return maybeAtDateTime.map(atDateTime -> "historicBalance").orElse("currentBalance");
+    public List<Account> namedAccountsFor(String prisonerId, String accName) {
+        return accountRepository.findByPrisonerIdAndAccountNameOrderByAccountCreatedDateTimeAsc(prisonerId, accName);
     }
 }

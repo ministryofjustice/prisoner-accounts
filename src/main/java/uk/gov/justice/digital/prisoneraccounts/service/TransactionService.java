@@ -79,7 +79,7 @@ public class TransactionService {
     @Transactional
     public void transferFunds(Account sourceAccount, Account targetAccount, long amountPence, String description) throws DebitNotSupportedException, InsufficientFundsException, AccountClosedException {
         String clientRef = UUID.randomUUID().toString();
-        debitAccount(sourceAccount, amountPence, clientRef, description);
-        creditAccount(targetAccount, amountPence, clientRef, description);
+        debitAccount(sourceAccount, amountPence, description, clientRef);
+        creditAccount(targetAccount, amountPence, description, clientRef);
     }
 }

@@ -18,10 +18,10 @@ public interface AccountRepository extends JpaRepository<Account, Long> {
 
     List<Account> findByPrisonerTransferIn(List<PrisonerTransfer> transfers);
 
-    List<Account> findByEstablishmentId(String establishmentId);
-
     List<Account> findByEstablishmentIdAndAccountCreatedDateTimeBefore(String establishmentId, ZonedDateTime asOfDateTime);
 
     List<Account> findByEstablishmentIdAndAccountStatus(String establishmentId, Account.AccountStatuses accountStatuse);
+
+    List<Account> findByPrisonerIdAndAccountNameOrderByAccountCreatedDateTimeAsc( String prisonerId, String accountName);
 
 }

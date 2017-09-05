@@ -29,6 +29,7 @@ import uk.gov.justice.digital.prisoneraccounts.service.PrisonerTransferService;
 import uk.gov.justice.digital.prisoneraccounts.service.TransactionService;
 
 import java.time.ZonedDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -127,6 +128,42 @@ public class AccountController {
         return maybeTransactionDetails.map(transactionDetails -> new ResponseEntity<>(transactionDetails, HttpStatus.OK))
                 .orElse(notFound());
 
+    }
+
+
+    @RequestMapping(value = "/prisoners/{prisonerId}/accounts/{accName}/transactions", method = RequestMethod.GET)
+    public ResponseEntity<List<TransactionDetail>> getPrisonerTransactions(
+            @PathVariable("prisonerId") String prisonerId,
+            @PathVariable("accName") String accName,
+            @RequestParam(name = "fromDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime fromDateTime,
+            @RequestParam(name = "toDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) ZonedDateTime toDateTime) {
+
+        // Hack to work around springfox-swagger problem of ignoring Optional<ZonedDateTime>
+        Optional<ZonedDateTime> maybeFromDateTime = Optional.ofNullable(fromDateTime);
+        Optional<ZonedDateTime> maybeToDateTime = Optional.ofNullable(toDateTime);
+
+
+        List<Account> prisonerAccounts = accountService.namedAccountsFor(prisonerId, accName);
+
+        if (prisonerAccounts.isEmpty()) {
+            return notFound();
+        }
+
+        List<TransactionDetail> transactionDetailList = prisonerAccounts.stream()
+                .map(account -> transactionService.getTransactions(account, maybeFromDateTime, maybeToDateTime))
+                .map(transactions -> transactions.stream()
+                        .map(transaction -> TransactionDetail.builder()
+                                .amountPence(transaction.getAmountPence())
+                                .clientReference(transaction.getClientReference())
+                                .description(transaction.getDescription())
+                                .transactionDateTime(transaction.getTransactionDateTime())
+                                .transactionType(TransactionDetail.TransactionTypes.valueOf(transaction.getTransactionType().toString()))
+                                .transactionId(transaction.getTransactionId())
+                                .build())
+                        .collect(Collectors.toList()))
+                .flatMap(Collection::stream).collect(Collectors.toList());
+
+        return new ResponseEntity<>(transactionDetailList, HttpStatus.OK);
     }
 
     @RequestMapping(value = "/establishments/{establishmentId}/prisoners/{prisonerId}/accounts", method = RequestMethod.GET)
