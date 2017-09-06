@@ -12,12 +12,46 @@ var router = new express.Router();
 const renderPrison = (res) => helpers.format(res, 'prison');
 const renderPrisonList = (res) => helpers.format(res, 'prisons');
 
+const createTransfersViewModel = (data, prisons) => {
+  let transfers = (data.transferredIn || []).map((t) => ({
+    prison_id: t.fromEstablishmentId,
+    transferredIn: t.amountToRequestPence,
+    transferredOut: 0,
+  }));
+
+  (data.transferredOut || []).forEach((t) => {
+    var report = transfers.filter((r) => r.toEstablishmentId === t.prison_id)[0];
+    if (report) {
+      report.transferredOut = t.amountToTransferPence;
+      return;
+    }
+
+    transfers.push({
+      prison_id: t.toEstablishmentId,
+      transferredIn: 0,
+      transferredOut: t.amountToTransferPence,
+    })
+  });
+
+  return {
+    transferredIn: data.transferredIn,
+    transferredOut: data.transferredOut,
+    reports: transfers.map((t) => ({
+      prison_id: t.prison_id,
+      prison: prisons.filter((p) => p.prison_id === t.prison_id)[0],
+      transferredIn: t.transferredIn,
+      transferredOut: t.transferredOut,
+      balance: t.transferredIn - t.transferredOut,
+    }))
+  };
+};
+
 const createPrisonViewModel = (req) => (data) =>
   ({
     prison_id: req.params.prison_id,
     prison: data.prison,
     prisoners: data.prisoners,
-    transfers: data.transfers,
+    transfers: helpers.inspect(createTransfersViewModel(data.transfers, data.prisons)),
     accounts: data.accounts,
   });
 
@@ -38,8 +72,9 @@ const displayPrison = (req, res, next) =>
     prisoner.findPrisoners(req.params.prison_id),
     reporting.getPrisonTransfersReport(req.params.prison_id),
     account.getPrisonAccounts(req.params.prison_id),
+    prison.listPrisons(),
   ])
-    .then((data) => ({ prison: data[0], prisoners: data[1], transfers: data[2], accounts: data[3] }))
+    .then((data) => ({ prison: data[0], prisoners: data[1], transfers: data[2], accounts: data[3], prisons: data[4] }))
     .then(createPrisonViewModel(req))
     .then(renderPrison(res))
     .catch(helpers.failWithError(res, next));

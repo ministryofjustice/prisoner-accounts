@@ -46,23 +46,31 @@
 				</tbody>
 			</table>
 
-			<h3 class="heading-small">Transfers In Reports</h3>
-			<ul>
-				{% for report in transfers.transferredIn %}
-				<li>{{ report.fromEstablishmentId }} = {{ report.amountToRequestPence }}</li>
-				{% else %}
-				<li>Transfers In report here...</li>
-				{% endfor %}
-			</ul>
-
-			<h3 class="heading-small">Transfers Out Reports</h3>
-			<ul>
-				{% for report in transfers.transferredOut %}
-				<li>{{ report.toEstablishmentId }} = {{ report.amountToTransferPence }}</li>
-				{% else %}
-				<li>Transfers Out report here...</li>
-				{% endfor %}
-			</ul>
+			<h2 class="heading-small">Transfers</h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Establishment</th>
+						<th align="right">Out</th>
+						<th align="right">In</th>
+						<th align="right">Oustanding</th>
+					</tr>
+				</thead>
+				<tbody>
+						{% for report in transfers.reports %}
+						<tr>
+							<td><a href="/prison/{{ report.prison_id }}">{{ report.prison.name }}</a></td>
+							<td align="right">&pound;{{ report.transferredOut }}</td>
+							<td align="right">&pound;{{ report.transferredIn }}</td>
+							<td align="right">&pound;{{ report.balance }}</td>
+						</tr>
+						{% else %}
+						<tr>
+							<td colspan="4">There are currently no transfers relevant to this establishment.</td>
+						</tr>
+						{% endfor %}
+				</tbody>
+			</table>
 		</section>
 	</div>
 </main>
