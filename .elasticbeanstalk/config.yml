@@ -1,0 +1,10 @@
+branch-defaults:
+  master:
+    environment: prisoner-accounts-proto
+global:
+  application_name: prisoner-accounts-proto
+  default_platform: arn:aws:elasticbeanstalk:eu-west-2::platform/Multi-container Docker
+    running on 64bit Amazon Linux/2.7.5
+  default_region: eu-west-2
+deploy:
+  artifact: Dockerrun.aws.json
