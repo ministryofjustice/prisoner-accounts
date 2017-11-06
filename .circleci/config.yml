@@ -27,6 +27,5 @@ jobs:
           name: Deploy to Elastic Beanstalk Staging
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              npm run plant-beanstalk $BUILD_VERSION
               ~/.local/bin/eb deploy --process --verbose
             fi
