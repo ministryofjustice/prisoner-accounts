@@ -49,10 +49,7 @@
           "containerPath": "/var/log/prisoner-accounts-web"
         }
       ],
-      "command": [
-        "npm",
-        "start"
-      ]
+      "command": ["npm", "start"]
     },
     {
       "name": "prisoner-accounts-service",
@@ -68,13 +65,14 @@
       "mountPoints": [
         {
           "sourceVolume": "prisoner-accounts-service",
-          "containerPath": "/opt/app"
+          "containerPath": "/root"
         },
         {
           "sourceVolume": "awseb-logs-prisoner-accounts-service",
           "containerPath": "/var/log/prisoner-accounts-service"
         }
-      ]
+      ],
+      "command": ["/usr/bin/java", "-jar", "/root/prisoner-accounts-1.0-SNAPSHOT.jar"]
     }
   ]
 }
