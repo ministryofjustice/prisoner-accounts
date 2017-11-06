@@ -1,0 +1,32 @@
+defaults: &defaults
+  working_directory: ~/app
+
+version: 2
+
+jobs:
+  build:
+    docker:
+      - image: circleci/node:6
+    steps:
+      - run:
+          name: Generate Build version
+          command: |
+            echo "export BUILD_VERSION=$(date +%Y%m%d%H%M)-$CIRCLE_BUILD_NUM" >> $BASH_ENV
+      - checkout
+      - run:
+          name: Build Artifacts
+          command: ./gradlew build
+      - deploy:
+          name: Install elastic beanstalk CLI
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              sudo apt-get install python-pip python-dev
+              pip install --user 'six>-1.9.0' awsebcli --ignore-installed
+            fi
+      - deploy:
+          name: Deploy to Elastic Beanstalk Staging
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              npm run plant-beanstalk $BUILD_VERSION
+              ~/.local/bin/eb deploy --process --verbose
+            fi

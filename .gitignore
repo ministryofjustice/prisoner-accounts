@@ -42,8 +42,7 @@ hs_err_pid*
 
 # Gradle:
 .gradle
-.idea/**/gradle.xml
-.idea/**/libraries
+.idea
 
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
@@ -68,3 +67,9 @@ com_crashlytics_export_strings.xml
 crashlytics.properties
 crashlytics-build.properties
 fabric.properties
+
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
+Dockerrun.aws.json
