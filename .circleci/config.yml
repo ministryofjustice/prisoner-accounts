@@ -20,12 +20,11 @@ jobs:
           name: Install elastic beanstalk CLI
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              sudo apt-get install python-pip python-dev
-              pip install --user 'six>-1.9.0' awsebcli --ignore-installed
+              ./scripts/installElasticbeanstalk.sh
             fi
       - deploy:
           name: Deploy to Elastic Beanstalk Staging
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              ~/.local/bin/eb deploy --process --verbose
+              ./scripts/deployElasticbeanstalk.sh $BUILD_VERSION
             fi
