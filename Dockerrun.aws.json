@@ -17,7 +17,7 @@
   "containerDefinitions": [
     {
       "name": "prisoner-accounts-web",
-      "image": "node:boron-alpine",
+      "image": "node:alpine",
       "environment": [
         {
           "name": "ACCOUNT_SERVICE_HOST",
@@ -42,18 +42,19 @@
       "mountPoints": [
         {
           "sourceVolume": "prisoner-accounts-web",
-          "containerPath": "/opt/app"
+          "containerPath": "/home/node/app"
         },
         {
           "sourceVolume": "awseb-logs-prisoner-accounts-web",
           "containerPath": "/var/log/prisoner-accounts-web"
         }
       ],
+      "workingDirectory": "/home/node/app",
       "command": ["npm", "start"]
     },
     {
       "name": "prisoner-accounts-service",
-      "image": "java",
+      "image": "openjdk:alpine",
       "essential": true,
       "memory": 128,
       "portMappings": [
@@ -65,14 +66,14 @@
       "mountPoints": [
         {
           "sourceVolume": "prisoner-accounts-service",
-          "containerPath": "/root"
+          "containerPath": "/usr/src/myapp"
         },
         {
           "sourceVolume": "awseb-logs-prisoner-accounts-service",
           "containerPath": "/var/log/prisoner-accounts-service"
         }
       ],
-      "command": ["/usr/bin/java", "-jar", "/root/prisoner-accounts-1.0-SNAPSHOT.jar"]
+      "command": ["java", "-jar", "/usr/src/myapp/prisoner-accounts-1.0-SNAPSHOT.jar"]
     }
   ]
 }
