@@ -61,12 +61,12 @@ jobs:
           name: Install elastic beanstalk CLI
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              ./scripts/installElasticBeanstalk.sh
+              ./scripts/installElasticbeanstalk.sh
             fi
 
       - deploy:
           name: Deploy to Elastic Beanstalk Staging
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              ./scripts/deployElasticBeanstalk.sh "${BUILD_VERSION}"
+              ./scripts/deployElasticbeanstalk.sh "${BUILD_VERSION}"
             fi
