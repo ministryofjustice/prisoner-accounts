@@ -7,20 +7,6 @@ cd $PWD
 cat <<- _EOF_ > Dockerrun.aws.json
 {
   "AWSEBDockerrunVersion": "2",
-  "volumes": [
-    {
-      "name": "prisoner-accounts-web",
-      "host": {
-        "sourcePath": "ui/dist"
-      }
-    },
-    {
-      "name": "prisoner-accounts-service",
-      "host": {
-        "sourcePath": "build/libs/"
-      }
-    }
-  ],
   "containerDefinitions": [
     {
       "name": "prisoner-accounts-web",
@@ -51,16 +37,10 @@ cat <<- _EOF_ > Dockerrun.aws.json
       ],
       "mountPoints": [
         {
-          "sourceVolume": "prisoner-accounts-web",
-          "containerPath": "/home/node/app"
-        },
-        {
           "sourceVolume": "awseb-logs-prisoner-accounts-web",
           "containerPath": "/var/log/prisoner-accounts-web"
         }
-      ],
-      "workingDirectory": "/home/node/app",
-      "command": ["npm", "start"]
+      ]
     },
     {
       "name": "prisoner-accounts-service",
@@ -78,15 +58,10 @@ cat <<- _EOF_ > Dockerrun.aws.json
       ],
       "mountPoints": [
         {
-          "sourceVolume": "prisoner-accounts-service",
-          "containerPath": "/usr/src/myapp"
-        },
-        {
           "sourceVolume": "awseb-logs-prisoner-accounts-service",
           "containerPath": "/var/log/prisoner-accounts-service"
         }
-      ],
-      "command": ["java", "-jar", "/usr/src/myapp/prisoner-accounts-1.0-SNAPSHOT.jar"]
+      ]
     }
   ]
 }
