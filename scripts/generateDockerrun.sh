@@ -10,56 +10,27 @@ cat <<- _EOF_ > Dockerrun.aws.json
   "containerDefinitions": [
     {
       "name": "prisoner-accounts-web",
-      "Image": {
-        "Name": "mojdigitalstudio/prisoner-accounts-web:${BUILD_VERSION}",
-        "Update": "true"
+      "image": {
+        "name": "mojdigitalstudio/prisoner-accounts-web:${BUILD_VERSION}",
+        "update": "true"
       },
-      "environment": [
-        {
-          "name": "ACCOUNT_SERVICE_HOST",
-          "value": "prisoner-accounts-service"
-        },
-        {
-          "name": "ACCOUNT_SERVICE_PORT",
-          "value": "8080"
-        }
-      ],
-      "essential": true,
-      "memory": 128,
       "portMappings": [
         {
-          "hostPort": 80,
+          "hostPort": 3000,
           "containerPort": 3000
-        }
-      ],
-      "links": [
-        "prisoner-accounts-service"
-      ],
-      "mountPoints": [
-        {
-          "sourceVolume": "awseb-logs-prisoner-accounts-web",
-          "containerPath": "/var/log/prisoner-accounts-web"
         }
       ]
     },
     {
       "name": "prisoner-accounts-service",
-      "Image": {
-        "Name": "mojdigitalstudio/prisoner-accounts-service:${BUILD_VERSION}",
-        "Update": "true"
+      "image": {
+        "name": "mojdigitalstudio/prisoner-accounts-service:${BUILD_VERSION}",
+        "update": "true"
       },
-      "essential": true,
-      "memory": 128,
       "portMappings": [
         {
           "hostPort": 8080,
           "containerPort": 8080
-        }
-      ],
-      "mountPoints": [
-        {
-          "sourceVolume": "awseb-logs-prisoner-accounts-service",
-          "containerPath": "/var/log/prisoner-accounts-service"
         }
       ]
     }
