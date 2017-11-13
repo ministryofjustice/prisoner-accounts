@@ -13,9 +13,9 @@ DOCKER_PASSWORD=${8}
 
 cd $PWD
 
-IMAGE_TAG="mojdigitalstudio/$APPLICATION_NAME:$BUILD_VERSION"
+IMAGE_TAG="mojdigitalstudio/$APPLICATION_NAME-web:$BUILD_VERSION"
 
-docker build . \
+docker build ./ui \
   --tag $IMAGE_TAG \
   --label "maintainer=noms-studio-webops@digital.justice.gov.uk" \
   --label "build.number=$CIRCLE_BUILD_NUM" \

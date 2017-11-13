@@ -47,14 +47,14 @@ jobs:
           name: Push Service to Docker Hub
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              ./scripts/publishDockerImage.sh prisoner-accounts-service "${BUILD_VERSION}" "${CIRCLE_BUILD_NUM}" "${CIRCLE_BUILD_URL}" "${CIRCLE_SHA1}" "${DOCKER_EMAIL}" "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}"
+              ./scripts/publishServiceDockerImage.sh prisoner-accounts "${BUILD_VERSION}" "${CIRCLE_BUILD_NUM}" "${CIRCLE_BUILD_URL}" "${CIRCLE_SHA1}" "${DOCKER_EMAIL}" "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}"
             fi
 
       - deploy:
           name: Push Web to Docker Hub
           command: |
             if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              ./scripts/publishDockerImage.sh prisoner-accounts-web "${BUILD_VERSION}" "${CIRCLE_BUILD_NUM}" "${CIRCLE_BUILD_URL}" "${CIRCLE_SHA1}" "${DOCKER_EMAIL}" "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}"
+              ./scripts/publishWebDockerImage.sh prisoner-accounts "${BUILD_VERSION}" "${CIRCLE_BUILD_NUM}" "${CIRCLE_BUILD_URL}" "${CIRCLE_SHA1}" "${DOCKER_EMAIL}" "${DOCKER_USERNAME}" "${DOCKER_PASSWORD}"
             fi
 
       - deploy:
