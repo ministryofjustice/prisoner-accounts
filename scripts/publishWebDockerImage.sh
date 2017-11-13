@@ -15,7 +15,7 @@ cd $PWD
 
 IMAGE_TAG="mojdigitalstudio/$APPLICATION_NAME-web:$BUILD_VERSION"
 
-docker build ./ui \
+docker build -f ./Web.DockerFile . \
   --tag $IMAGE_TAG \
   --label "maintainer=noms-studio-webops@digital.justice.gov.uk" \
   --label "build.number=$CIRCLE_BUILD_NUM" \
