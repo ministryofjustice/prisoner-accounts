@@ -1,33 +1,74 @@
 #!/bin/bash
 
-VERSION="$1"
+BUILD_VERSION=${1}
 
 cd $PWD
 
-mkdir dist
-
-cat <<- _EOF_ > dist/Dockerrun.aws.json
+cat <<- _EOF_ > Dockerrun.aws.json
 {
   "AWSEBDockerrunVersion": "2",
   "volumes": [
     {
+      "name": "prisoner-accounts-web",
+      "host": {
+        "sourcePath": "ui/dist"
+      }
+    },
+    {
       "name": "prisoner-accounts-service",
       "host": {
-        "sourcePath": "service/"
+        "sourcePath": "build/libs/"
       }
     }
   ],
   "containerDefinitions": [
     {
-      "name": "prisoner-accounts-service",
-      "image": "openjdk:alpine",
-      "essential": true,
+      "name": "prisoner-accounts-web",
+      "Image": {
+        "Name": "mojdigitalstudio/prisoner-accounts-web:${BUILD_VERSION}",
+        "Update": "true"
+      },
       "environment": [
         {
-          "name": "VERSION",
-          "value": "${VERSION}"
+          "name": "ACCOUNT_SERVICE_HOST",
+          "value": "prisoner-accounts-service"
+        },
+        {
+          "name": "ACCOUNT_SERVICE_PORT",
+          "value": "8080"
         }
       ],
+      "essential": true,
+      "memory": 128,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 3000
+        }
+      ],
+      "links": [
+        "prisoner-accounts-service"
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "prisoner-accounts-web",
+          "containerPath": "/home/node/app"
+        },
+        {
+          "sourceVolume": "awseb-logs-prisoner-accounts-web",
+          "containerPath": "/var/log/prisoner-accounts-web"
+        }
+      ],
+      "workingDirectory": "/home/node/app",
+      "command": ["npm", "start"]
+    },
+    {
+      "name": "prisoner-accounts-service",
+      "Image": {
+        "Name": "mojdigitalstudio/prisoner-accounts-service:${BUILD_VERSION}",
+        "Update": "true"
+      },
+      "essential": true,
       "memory": 128,
       "portMappings": [
         {
@@ -45,8 +86,9 @@ cat <<- _EOF_ > dist/Dockerrun.aws.json
           "containerPath": "/var/log/prisoner-accounts-service"
         }
       ],
-      "command": ["java", "-jar", "/usr/src/myapp/prisoner-accounts.jar"]
+      "command": ["java", "-jar", "/usr/src/myapp/prisoner-accounts-1.0-SNAPSHOT.jar"]
     }
   ]
 }
+
 _EOF_
