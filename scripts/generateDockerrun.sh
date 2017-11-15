@@ -21,7 +21,6 @@ cat <<- _EOF_ > Dockerrun.aws.json
           "value": "8080"
         }
       ],
-      "essential": true,
       "memory": 128,
       "portMappings": [
         {
