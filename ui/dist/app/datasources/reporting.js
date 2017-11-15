@@ -13,17 +13,21 @@ client.registerMethod('getPrisonTransfersReport', accountReportingServiceUri('/e
 // private
 
 const getPrisonAccountsReport = (prison_id,  atDateTime) =>
-  new Promise((res, rej) =>
-    client.methods.getPrisonAccountsReport({
+  new Promise((res, rej) => client.methods.getPrisonAccountsReport(
+    {
       path: { prison_id: prison_id },
       parameters: { atDateTime: atDateTime },
-    }, (data) => res(data)));
+    },
+    (data) => (data.status < 200 || data.status > 299) ? rej(data) : res(helpers.inspect(data))
+  ).on('error', (err) => rej(err)));
 
 const getPrisonTransfersReport = (prison_id) =>
-  new Promise((res, rej) =>
-    client.methods.getPrisonTransfersReport({
+  new Promise((res, rej) => client.methods.getPrisonTransfersReport(
+    {
       path: { prison_id: prison_id }
-    }, (data) => res(data)));
+    },
+    (data) => (data.status < 200 || data.status > 299) ? rej(data) : res(helpers.inspect(data))
+  ).on('error', (err) => rej(err)));
 
 // exports
 
