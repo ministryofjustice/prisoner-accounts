@@ -73,4 +73,5 @@ fabric.properties
 !.elasticbeanstalk/config.yml
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
+!.elasticbeanstalk/.ebextensions/*
 Dockerrun.aws.json

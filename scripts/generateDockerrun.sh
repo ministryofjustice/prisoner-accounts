@@ -35,7 +35,7 @@ cat <<- _EOF_ > Dockerrun.aws.json
       "mountPoints": [
         {
           "sourceVolume": "awseb-logs-prisoner-accounts-web",
-          "containerPath": "/var/log/prisoner-accounts-web"
+          "containerPath": "/var/log/containers/prisoner-accounts-web"
         }
       ]
     },
@@ -53,7 +53,7 @@ cat <<- _EOF_ > Dockerrun.aws.json
       "mountPoints": [
         {
           "sourceVolume": "awseb-logs-prisoner-accounts-service",
-          "containerPath": "/var/log/prisoner-accounts-service"
+          "containerPath": "/var/log/containers/prisoner-accounts-service"
         }
       ]
     }
