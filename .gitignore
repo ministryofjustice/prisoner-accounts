@@ -69,9 +69,12 @@ crashlytics-build.properties
 fabric.properties
 
 # Elastic Beanstalk Files
+.ebextensions/*
+!.ebextensions/config.yml
+!.ebextensions/*.cfg.yml
+!.ebextensions/*.global.yml
 .elasticbeanstalk/*
 !.elasticbeanstalk/config.yml
 !.elasticbeanstalk/*.cfg.yml
 !.elasticbeanstalk/*.global.yml
-!.elasticbeanstalk/.ebextensions/*
 Dockerrun.aws.json
