@@ -21,7 +21,7 @@ cat <<- _EOF_ > Dockerrun.aws.json
           "value": "8080"
         }
       ],
-      "memory": 128,
+      "memory": 512,
       "portMappings": [
         {
           "hostPort": 80,
@@ -42,7 +42,7 @@ cat <<- _EOF_ > Dockerrun.aws.json
       "name": "prisoner-accounts-service",
       "image": "mojdigitalstudio/prisoner-accounts-service:${BUILD_VERSION}",
       "essential": true,
-      "memory": 128,
+      "memory": 512,
       "portMappings": [
         {
           "hostPort": 8080,
