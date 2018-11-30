@@ -64,9 +64,9 @@ jobs:
               ./scripts/installElasticbeanstalk.sh
             fi
 
-      - deploy:
-          name: Deploy to Elastic Beanstalk Staging
-          command: |
-            if [ "${CIRCLE_BRANCH}" == "master" ]; then
-              ./scripts/deployElasticbeanstalk.sh "${BUILD_VERSION}"
-            fi
+#      - deploy:
+#          name: Deploy to Elastic Beanstalk Staging
+#          command: |
+#            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+#              ./scripts/deployElasticbeanstalk.sh "${BUILD_VERSION}"
+#            fi
